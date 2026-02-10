@@ -1,0 +1,107 @@
+.how-it-works-section {
+    padding: 5rem 1.5rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-tag {
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    color: var(--accent-green);
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: var(--gray-600);
+    font-size: 1.125rem;
+    max-width: 48rem;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.step-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    background-color: white;
+    border-radius: var(--radius-3xl);
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-8px);
+}
+
+.step-icon {
+    width: 5rem;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-2xl);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.step-card:hover .step-icon {
+    transform: scale(1.1);
+}
+
+.icon-primary {
+    background-color: rgba(242, 142, 2, 0.1);
+    color: var(--primary);
+}
+
+.icon-green {
+    background-color: rgba(17, 87, 65, 0.1);
+    color: var(--accent-green);
+}
+
+.icon-red {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.step-icon .material-symbols-outlined {
+    font-size: 2.5rem;
+}
+
+.step-title {
+    color: var(--accent-green);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.step-description {
+    color: var(--gray-600);
+    line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+    .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

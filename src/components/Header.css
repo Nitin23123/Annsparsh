@@ -1,0 +1,80 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: var(--background-light);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    background-color: rgba(248, 247, 245, 0.95);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-icon {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    border-radius: var(--radius-lg);
+    color: white;
+}
+
+.logo-text {
+    color: var(--accent-green);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header-nav {
+    display: none;
+    gap: 2.5rem;
+}
+
+.nav-link {
+    color: var(--text-dark);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--primary);
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.login-btn {
+    display: none;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+    .header {
+        padding: 1rem 5rem;
+    }
+
+    .header-nav {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .login-btn {
+        display: inline-flex;
+    }
+}
