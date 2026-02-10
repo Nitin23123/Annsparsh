@@ -1,16 +1,87 @@
-# React + Vite
+# AnnSparsh - Food Waste Reduction Platform 🍲
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**AnnSparsh** ("Touch of Food") is a web platform designed to bridge the gap between food abundance and hunger. It connects food donors (restaurants, hotels, individuals) with NGOs and volunteers to facilitate the efficient redistribution of surplus food.
 
-Currently, two official plugins are available:
+![AnnSparsh Hero](https://lh3.googleusercontent.com/aida-public/AB6AXuDAyEFGPRA45ivjUjsP21WZ3IeGMXdAjumuWw1aN4pGLvkzZNNnnvjRbh8imjuKVRSjVUPPsMl2RaYbVnPeWdOXPMLzYrws6M031BR5s_NmIsZbyE6gViSSftO8e9LqTZ8vDMtv5az1wt6ypCwE4qQJGCSqw08aHgRwtz1F5qbe3M3wuT_0Ik6VwLhvvKJjV6Ozs7yS9OiR-ScoiI7cf93mxibETI9a-TOkx1Jw97KjpuMDmicDjqWe_YRt_MVyEOAmbIYf4bnDlcw)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Key Features
 
-## React Compiler
+*   **User Roles**: Distinct flows for **Donors**, **NGOs/Volunteers**, and **Administrators**.
+*   **Donation Management**: Easy-to-use form to list surplus food types, quantities, and pickup details.
+*   **Real-time Tracking**: Live status tracking of food donations from request to delivery.
+*   **Interactive Dashboards**:
+    *   **Donor Dashboard**: Manage active donations and view impact stats.
+    *   **NGO Dashboard**: detailed feed of available food in the vicinity.
+    *   **Admin Dashboard**: Oversee platform activity and verify organizations.
+*   **Impact Reporting**: Visual statistics on meals saved, CO2 reduced, and lives impacted.
+*   **Responsive Design**: Fully responsive UI built with Tailwind CSS for mobile and desktop.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+*   **Frontend**: React.js (Vite)
+*   **Styling**: Tailwind CSS, Vanilla CSS (for custom animations)
+*   **Routing**: React Router DOM
+*   **Icons**: Google Material Symbols
+*   **Fonts**: Be Vietnam Pro, Public Sans
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Installation & Setup
+
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/Nitin23123/Annsparsh.git
+    cd Annsparsh
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Run the development server**
+    ```bash
+    npm run dev
+    ```
+
+4.  **Open in Browser**
+    Visit `http://localhost:5173` to view the application.
+
+## 🚦 Usage Flows
+
+### 1. Donor Flow
+*   Login and select **"Donate Food"**.
+*   Use the dashboard to **"Add Food Donation"**.
+*   Track the status of your donation under **"My Donations"**.
+
+### 2. NGO Flow
+*   Login and select **"Request Food"**.
+*   Browse the **"Available Food"** feed on the dashboard.
+*   Click **"Request Food"** to claim a donation.
+
+### 3. Admin Flow
+*   Click **"Login as Administrator"** on the Role Selection page (bottom link).
+*   View platform statistics and approve/reject verification requests.
+
+## 📂 Project Structure
+
+```
+src/
+├── components/        # All React components (Pages & UI elements)
+│   ├── Auth.jsx       # Login/Register page
+│   ├── DonorDashboard.jsx
+│   ├── NGODashboard.jsx
+│   ├── CreateDonation.jsx
+│   ├── History.jsx    # Impact reports
+│   └── ...
+├── App.jsx            # Main routing configuration
+├── index.css          # Tailwind imports & global animations
+└── main.jsx           # Entry point
+```
+
+## 🎨 Design System
+
+*   **Primary Color**: `#f28e02` (Orange)
+*   **Brand Green**: `#115741` (Deep Forest Green)
+*   **Background**: `#fdf3e4` (Warm Cream)
+
+---
+*Built with ❤️ for a hunger-free world.*
