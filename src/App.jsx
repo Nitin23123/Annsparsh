@@ -1,4 +1,10 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import socket from './socket';
+
 import Header from './components/Header';
 import Hero from './components/Hero';
 import HowItWorks from './components/HowItWorks';
@@ -37,21 +43,75 @@ function Home() {
 }
 
 function App() {
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    socket.on('donation:created', (data) => {
+      toast.info(`New Donation Available: ${data.foodItem}`);
+    });
+
+    socket.on('request:created', (data) => {
+      toast.warning(`New Request for ${data.donation.foodItem}`);
+    });
+
+    socket.on('request:updated', (data) => {
+      const msg = data.status === 'APPROVED' ? 'Request Approved! 🎉' : 'Request Rejected ❌';
+      toast.success(msg);
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.off('donation:created');
+      socket.off('request:created');
+      socket.off('request:updated');
+    };
+  }, []);
+
   return (
     <div className="app">
+      <ToastContainer position="top-right" autoClose={5000} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/role-selection" element={<RoleSelection />} />
-        <Route path="/donor-dashboard" element={<DonorDashboard />} />
-        <Route path="/ngo-dashboard" element={<NGODashboard />} />
-        <Route path="/create-donation" element={<CreateDonation />} />
-        <Route path="/donation-requests" element={<DonationManagement />} />
+
+        {/* Protected Routes */}
+        <Route path="/donor-dashboard" element={
+          <ProtectedRoute allowedRoles={['DONOR']}>
+            <DonorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/ngo-dashboard" element={
+          <ProtectedRoute allowedRoles={['NGO']}>
+            <NGODashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/create-donation" element={
+          <ProtectedRoute allowedRoles={['DONOR']}>
+            <CreateDonation />
+          </ProtectedRoute>
+        } />
+        <Route path="/donation-requests" element={
+          <ProtectedRoute allowedRoles={['NGO']}>
+            <DonationManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute allowedRoles={['DONOR', 'NGO']}>
+            <History />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+
         <Route path="/tracking" element={<Tracking />} />
-        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/verification-pending" element={<VerificationPending />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="/history" element={<History />} />
         <Route path="/shelters" element={<ShelterFinder />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/help" element={<HelpCenter />} />

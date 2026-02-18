@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
 
 export default function CreateDonation() {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function CreateDonation() {
         description: '',
         pickupAddress: 'Royal Heritage Hotel, MG Road', // Default for demo
     });
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,13 +22,19 @@ export default function CreateDonation() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Logic to submit data would go here
-        console.log('Donation Submitted:', formData);
-        // Redirect back to dashboard with success (simulated)
-        alert('Donation listed successfully!');
-        navigate('/donor-dashboard');
+        setLoading(true);
+        try {
+            await api.post('/donations', formData);
+            alert('Donation listed successfully!');
+            navigate('/donor-dashboard');
+        } catch (error) {
+            console.error('Error creating donation:', error);
+            alert('Failed to list donation. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -139,9 +147,13 @@ export default function CreateDonation() {
                         </div>
 
                         <div className="pt-4">
-                            <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
                                 <span className="material-symbols-outlined">publish</span>
-                                List Donation
+                                {loading ? 'Listing...' : 'List Donation'}
                             </button>
                         </div>
                     </form>

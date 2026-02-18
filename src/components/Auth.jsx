@@ -1,14 +1,56 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
 
 export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: 'DONOR'
+    });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // In a real app, you would handle authentication here
-        navigate('/role-selection');
+        setError('');
+        setLoading(true);
+
+        try {
+            if (isLogin) {
+                const response = await api.post('/auth/login', { email: formData.email, password: formData.password });
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+
+                // Redirect based on role
+                if (response.data.user.role === 'NGO') {
+                    navigate('/ngo-dashboard');
+                } else if (response.data.user.role === 'DONOR') {
+                    navigate('/donor-dashboard');
+                } else if (response.data.user.role === 'ADMIN') {
+                    navigate('/admin');
+                } else {
+                    navigate('/role-selection');
+                }
+            } else {
+                const response = await api.post('/auth/signup', formData);
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                navigate('/role-selection');
+            }
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.message || 'Authentication failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -75,13 +117,13 @@ export default function Auth() {
                             {/* Toggle Tabs */}
                             <div className="flex border-b border-gray-100 dark:border-zinc-800">
                                 <button
-                                    onClick={() => setIsLogin(true)}
+                                    onClick={() => { setIsLogin(true); setError(''); }}
                                     className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors ${isLogin ? 'border-primary text-brand-green dark:text-white' : 'border-transparent text-gray-400 hover:text-brand-green'}`}
                                 >
                                     Login
                                 </button>
                                 <button
-                                    onClick={() => setIsLogin(false)}
+                                    onClick={() => { setIsLogin(false); setError(''); }}
                                     className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors ${!isLogin ? 'border-primary text-brand-green dark:text-white' : 'border-transparent text-gray-400 hover:text-brand-green'}`}
                                 >
                                     Register
@@ -96,6 +138,13 @@ export default function Auth() {
                                         {isLogin ? 'Please enter your details to sign in.' : 'Join us to make a difference.'}
                                     </p>
                                 </div>
+
+                                {error && (
+                                    <div className="mb-4 p-3 bg-red-100 border border-red-200 text-red-700 rounded-lg text-sm">
+                                        {error}
+                                    </div>
+                                )}
+
                                 {/* Form */}
                                 <form className="space-y-5" onSubmit={handleSubmit}>
                                     {!isLogin && (
@@ -103,7 +152,15 @@ export default function Auth() {
                                             <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Full Name</label>
                                             <div className="relative">
                                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">person</span>
-                                                <input className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" type="text" placeholder="John Doe" />
+                                                <input
+                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                                    type="text"
+                                                    name="name"
+                                                    value={formData.name}
+                                                    onChange={handleChange}
+                                                    placeholder="John Doe"
+                                                    required={!isLogin}
+                                                />
                                             </div>
                                         </div>
                                     )}
@@ -111,9 +168,34 @@ export default function Auth() {
                                         <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Email Address</label>
                                         <div className="relative">
                                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">mail</span>
-                                            <input className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" type="email" placeholder="alex@example.com" />
+                                            <input
+                                                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="alex@example.com"
+                                                required
+                                            />
                                         </div>
                                     </div>
+                                    {!isLogin && (
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Role</label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">badge</span>
+                                                <select
+                                                    name="role"
+                                                    value={formData.role}
+                                                    onChange={handleChange}
+                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none"
+                                                >
+                                                    <option value="DONOR">Donor (I have food)</option>
+                                                    <option value="NGO">NGO (I need food)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
                                             <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Password</label>
@@ -121,7 +203,15 @@ export default function Auth() {
                                         </div>
                                         <div className="relative">
                                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">lock</span>
-                                            <input className="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" type="password" placeholder="••••••••" />
+                                            <input
+                                                className="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                                type="password"
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                placeholder="••••••••"
+                                                required
+                                            />
                                             <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-green">
                                                 <span className="material-symbols-outlined text-xl">visibility</span>
                                             </button>
@@ -133,8 +223,12 @@ export default function Auth() {
                                             <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">Keep me logged in</label>
                                         </div>
                                     )}
-                                    <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 mt-8">
-                                        {isLogin ? 'Sign In' : 'Create Account'}
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 mt-8 disabled:opacity-70 disabled:cursor-not-allowed"
+                                    >
+                                        {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
                                     </button>
                                     <div className="mt-6 text-center">
                                         <Link to="/verification-pending" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 hover:underline bg-primary/5 px-4 py-2 rounded-full transition-colors">

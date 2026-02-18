@@ -1,97 +1,156 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api';
 
 export default function History() {
-    const pastDonations = [
-        { id: 'DON-101', date: 'Oct 20, 2024', item: 'Rice & Curry', quantity: '20 kg', status: 'Completed', ngo: 'City Shelter' },
-        { id: 'DON-098', date: 'Oct 15, 2024', item: 'Fresh Fruits', quantity: '10 kg', status: 'Completed', ngo: 'Kids Home' },
-        { id: 'DON-092', date: 'Oct 10, 2024', item: 'Bread Packets', quantity: '50 units', status: 'Expired', ngo: '-' },
-    ];
+    const [historyData, setHistoryData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState('');
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            setUserRole(user.role);
+            fetchHistory(user.role);
+        }
+    }, []);
+
+    const fetchHistory = async (role) => {
+        try {
+            let res;
+            if (role === 'DONOR') {
+                res = await api.get('/donations/my');
+            } else if (role === 'NGO') {
+                res = await api.get('/requests/ngo');
+            }
+            if (res) {
+                setHistoryData(res.data);
+            }
+        } catch (error) {
+            console.error('Error fetching history:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="bg-brand-cream dark:bg-background-dark min-h-screen font-display flex flex-col">
-            {/* Simple Header */}
+            {/* Header */}
             <header className="bg-brand-green text-white px-6 py-4 flex items-center justify-between shadow-md">
                 <div className="flex items-center gap-3">
-                    <Link to="/donor-dashboard" className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <Link to={userRole === 'NGO' ? "/ngo-dashboard" : "/donor-dashboard"} className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Back to Dashboard">
                         <span className="material-symbols-outlined text-white">arrow_back</span>
                     </Link>
-                    <h2 className="text-xl font-bold tracking-tight">History & Impact</h2>
+                    <h2 className="text-xl font-bold tracking-tight text-white">History & Impact</h2>
+                </div>
+                <div className="flex items-center gap-4">
+                    <Link to="/" className="text-white/80 hover:text-white font-medium flex items-center gap-2 text-sm">
+                        <span className="material-symbols-outlined text-lg">home</span>
+                    </Link>
+                    <Link
+                        to="/auth"
+                        onClick={() => {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                        }}
+                        className="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg font-medium text-xs transition-colors"
+                    >
+                        Logout
+                    </Link>
                 </div>
             </header>
 
             <main className="flex-1 max-w-5xl mx-auto w-full p-6">
-                {/* Impact Cards */}
+                {/* Impact Cards (Static for now, can make dynamic later) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-primary/10 p-6 rounded-2xl border border-primary/20">
                         <div className="flex items-center gap-4 mb-2">
                             <div className="size-10 rounded-full bg-primary flex items-center justify-center text-white">
                                 <span className="material-symbols-outlined">volunteer_activism</span>
                             </div>
-                            <span className="font-bold text-primary">Meals Provided</span>
+                            <span className="font-bold text-primary">All Time</span>
                         </div>
-                        <p className="text-3xl font-extrabold text-brand-green dark:text-white">450+</p>
-                    </div>
-                    <div className="bg-brand-green/10 p-6 rounded-2xl border border-brand-green/20">
-                        <div className="flex items-center gap-4 mb-2">
-                            <div className="size-10 rounded-full bg-brand-green flex items-center justify-center text-white">
-                                <span className="material-symbols-outlined">co2</span>
-                            </div>
-                            <span className="font-bold text-brand-green dark:text-white">CO2 Prevented</span>
-                        </div>
-                        <p className="text-3xl font-extrabold text-brand-green dark:text-white">120 kg</p>
-                    </div>
-                    <div className="bg-orange-100 p-6 rounded-2xl border border-orange-200">
-                        <div className="flex items-center gap-4 mb-2">
-                            <div className="size-10 rounded-full bg-orange-500 flex items-center justify-center text-white">
-                                <span className="material-symbols-outlined">groups</span>
-                            </div>
-                            <span className="font-bold text-orange-700">People Helped</span>
-                        </div>
-                        <p className="text-3xl font-extrabold text-brand-green dark:text-white">320</p>
+                        <p className="text-3xl font-extrabold text-brand-green dark:text-white">{historyData.length} Items</p>
                     </div>
                 </div>
 
                 {/* History Table */}
                 <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-brand-green/10 overflow-hidden">
                     <div className="px-6 py-4 border-b border-brand-green/5 bg-brand-green/5">
-                        <h3 className="font-bold text-brand-green dark:text-white">Donation History</h3>
+                        <h3 className="font-bold text-brand-green dark:text-white">
+                            {userRole === 'DONOR' ? 'My Donations' : 'My Requests'}
+                        </h3>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 dark:bg-white/5 text-gray-500 font-medium">
-                                <tr>
-                                    <th className="px-6 py-4">ID</th>
-                                    <th className="px-6 py-4">Date</th>
-                                    <th className="px-6 py-4">Item</th>
-                                    <th className="px-6 py-4">Quantity</th>
-                                    <th className="px-6 py-4">Recipient</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                {pastDonations.map((donation) => (
-                                    <tr key={donation.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-brand-green/70">{donation.id}</td>
-                                        <td className="px-6 py-4 text-gray-600">{donation.date}</td>
-                                        <td className="px-6 py-4 font-bold text-brand-green dark:text-white">{donation.item}</td>
-                                        <td className="px-6 py-4 text-gray-600">{donation.quantity}</td>
-                                        <td className="px-6 py-4 text-gray-600">{donation.ngo}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${donation.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                                }`}>
-                                                {donation.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <button className="text-primary font-bold hover:underline text-xs">View Details</button>
-                                        </td>
+                    {loading ? (
+                        <div className="p-8 text-center">Loading history...</div>
+                    ) : historyData.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">No history found.</div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-50 dark:bg-white/5 text-gray-500 font-medium">
+                                    <tr>
+                                        <th className="px-6 py-4">ID</th>
+                                        <th className="px-6 py-4">Date</th>
+                                        <th className="px-6 py-4">Item</th>
+                                        <th className="px-6 py-4">Status</th>
+                                        {userRole === 'DONOR' && <th className="px-6 py-4">Claimed By (NGO)</th>}
+                                        {userRole === 'NGO' && <th className="px-6 py-4">Donor Contact</th>}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                                    {historyData.map((item) => {
+                                        // Normalize data based on role
+                                        const date = new Date(item.createdAt).toLocaleDateString();
+                                        const id = item.id;
+
+                                        // For Donor: item is Donation
+                                        // For NGO: item is Request (which has donation relation)
+                                        const foodItem = userRole === 'DONOR' ? item.foodItem : item.donation.foodItem;
+                                        const status = item.status;
+
+                                        // Extra logic for Donor
+                                        let ngoName = '-';
+                                        if (userRole === 'DONOR' && item.requests) {
+                                            const approvedReq = item.requests.find(r => r.status === 'APPROVED');
+                                            if (approvedReq && approvedReq.ngo) {
+                                                ngoName = approvedReq.ngo.name;
+                                            }
+                                        }
+
+                                        // Extra logic for NGO
+                                        let donorContact = '-';
+                                        if (userRole === 'NGO' && item.donation.donor) {
+                                            donorContact = `${item.donation.donor.name} (${item.donation.donor.phone || 'N/A'})`;
+                                        }
+
+                                        return (
+                                            <tr key={id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                                <td className="px-6 py-4 font-bold text-brand-green/70">#{id}</td>
+                                                <td className="px-6 py-4 text-gray-600">{date}</td>
+                                                <td className="px-6 py-4 font-bold text-brand-green dark:text-white">{foodItem}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${status === 'AVAILABLE' || status === 'PENDING' ? 'bg-orange-100 text-orange-700' :
+                                                        status === 'CLAIMED' || status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                            'bg-red-100 text-red-700'
+                                                        }`}>
+                                                        {status}
+                                                    </span>
+                                                </td>
+                                                {userRole === 'DONOR' && (
+                                                    <td className="px-6 py-4 text-gray-600">{ngoName}</td>
+                                                )}
+                                                {userRole === 'NGO' && (
+                                                    <td className="px-6 py-4 text-gray-600">{donorContact}</td>
+                                                )}
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

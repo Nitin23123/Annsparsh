@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://neondb_owner:npg_ZhLGFUSw4MK3@ep-broad-field-ai8obmj6-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("DONOR")
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  donations Donation[]
+  requests  Request[]
+}
+
+model Donation {
+  id            Int      @id @default(autoincrement())
+  foodItem      String
+  foodType      String
+  quantity      String
+  expiryTime    DateTime
+  description   String?
+  pickupAddress String
+  status        String   @default("AVAILABLE")
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  donorId       Int
+  donor         User     @relation(fields: [donorId], references: [id])
+  requests      Request[]
+}
+
+model Request {
+  id         Int      @id @default(autoincrement())
+  status     String   @default("PENDING")
+  message    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  donationId Int
+  donation   Donation @relation(fields: [donationId], references: [id])
+  ngoId      Int
+  ngo        User     @relation(fields: [ngoId], references: [id])
+}
