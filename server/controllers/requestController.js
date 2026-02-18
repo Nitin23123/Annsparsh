@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 const createRequest = async (req, res) => {
     const { donationId, message } = req.body;
     const ngoId = req.user.userId;
+    console.log(`[CreateRequest] User: ${req.user.userId} (${req.user.role}), Body:`, req.body);
 
     try {
         // Check if donation exists and is available
@@ -104,6 +105,7 @@ const updateRequestStatus = async (req, res) => {
     const { status, volunteerName, volunteerPhone, vehicleNumber } = req.body;
     const userId = req.user.userId;
     const userRole = req.user.role;
+    console.log(`[UpdateRequest] User: ${userId} (${userRole}), RequestID: ${id}, Body:`, req.body);
 
     try {
         const request = await prisma.request.findUnique({
