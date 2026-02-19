@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 import api from '../api';
 import socket from '../socket';
 
 export default function DonorDashboard() {
     const [requests, setRequests] = useState([]);
-    const [activeDonations, setActiveDonations] = useState([]);
+    const [myDonations, setMyDonations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch Requests for my donations
-                const requestsRes = await api.get('/requests/donor');
+                const [requestsRes, donationsRes] = await Promise.all([
+                    api.get('/requests/donor'),
+                    api.get('/donations/my')
+                ]);
                 setRequests(requestsRes.data);
-
-                // Fetch my active donations (optional, but good context)
-                // const donationsRes = await api.get('/donations/my'); 
-                // For now, we focus on requests
+                setMyDonations(donationsRes.data);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {
@@ -28,10 +29,8 @@ export default function DonorDashboard() {
 
         fetchData();
 
-        // Real-time listener
+        // Real-time listeners
         socket.on('request:created', (newRequest) => {
-            // Ideally check if this request belongs to my donation, but for now we append
-            // To be safe, we could re-fetch or just append if we trust the broadcast
             setRequests((prev) => [newRequest, ...prev]);
         });
 
@@ -48,16 +47,39 @@ export default function DonorDashboard() {
     const handleAction = async (requestId, status) => {
         try {
             await api.put(`/requests/${requestId}`, { status });
-            alert(`Request ${status} successfully!`);
-            // Refresh list
+            toast.success(`Request ${status.toLowerCase()} successfully!`);
             const requestsRes = await api.get('/requests/donor');
             setRequests(requestsRes.data);
         } catch (error) {
             console.error('Error updating request:', error);
             const msg = error.response?.data?.message || 'Failed to update request.';
-            alert(msg);
+            toast.error(msg);
         }
     };
+
+    const handleDeleteDonation = async (donationId) => {
+        try {
+            await api.delete(`/donations/${donationId}`);
+            toast.success('Donation deleted successfully!');
+            setMyDonations((prev) => prev.filter(d => d.id !== donationId));
+        } catch (error) {
+            console.error('Error deleting donation:', error);
+            toast.error(error.response?.data?.message || 'Failed to delete donation.');
+        }
+    };
+
+    // Stats calculations
+    const totalDonations = myDonations.length;
+    const approvedRequests = requests.filter(r => r.status === 'APPROVED').length;
+    const pendingRequests = requests.filter(r => r.status === 'PENDING').length;
+    const rejectedRequests = requests.filter(r => r.status === 'REJECTED').length;
+
+    const stats = [
+        { label: 'Total Donations', value: totalDonations, icon: 'volunteer_activism', color: 'from-emerald-500 to-green-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+        { label: 'Approved', value: approvedRequests, icon: 'check_circle', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+        { label: 'Pending', value: pendingRequests, icon: 'hourglass_top', color: 'from-orange-400 to-amber-500', bg: 'bg-orange-50 dark:bg-orange-900/20' },
+        { label: 'Rejected', value: rejectedRequests, icon: 'cancel', color: 'from-red-400 to-rose-500', bg: 'bg-red-50 dark:bg-red-900/20' },
+    ];
 
     return (
         <div className="bg-brand-cream dark:bg-background-dark text-deep-green font-display min-h-screen">
@@ -108,7 +130,7 @@ export default function DonorDashboard() {
                     {/* Header */}
                     <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-6 bg-brand-cream/80 backdrop-blur-md dark:bg-background-dark/80 border-b border-brand-green/5">
                         <div>
-                            <h2 className="text-2xl font-bold text-brand-green dark:text-warm-cream">Donor Dashboard</h2>
+                            <h2 className="text-2xl font-bold text-brand-green dark:text-warm-cream">Welcome, {user.name || 'Donor'}</h2>
                             <p className="text-brand-green/70 dark:text-white/60 text-sm">Manage your donations and approve requests.</p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -121,15 +143,121 @@ export default function DonorDashboard() {
 
                     <div className="px-8 pb-10 space-y-8 mt-6">
 
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {stats.map((stat, index) => (
+                                <motion.div
+                                    key={stat.label}
+                                    className={`${stat.bg} p-5 rounded-2xl border border-brand-green/5 relative overflow-hidden group`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    whileHover={{ y: -3 }}
+                                >
+                                    <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-150 duration-500`}></div>
+                                    <div className="relative z-10">
+                                        <div className={`inline-flex items-center justify-center size-10 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3`}>
+                                            <span className="material-symbols-outlined text-xl">{stat.icon}</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-brand-green dark:text-white">{loading ? '—' : stat.value}</p>
+                                        <p className="text-sm text-brand-green/60 dark:text-white/60 font-medium mt-1">{stat.label}</p>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* My Active Donations Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                            <h3 className="text-xl font-bold text-brand-green dark:text-white mb-4 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">restaurant</span>
+                                My Active Donations
+                                <span className="text-sm font-normal text-brand-green/50 ml-1">({myDonations.filter(d => d.status === 'AVAILABLE').length} active)</span>
+                            </h3>
+                            {loading ? (
+                                <p className="text-brand-green/60 animate-pulse">Loading donations...</p>
+                            ) : myDonations.length === 0 ? (
+                                <motion.div
+                                    className="bg-white dark:bg-white/5 p-8 rounded-2xl border border-dashed border-brand-green/20 text-center"
+                                    initial={{ scale: 0.95, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                >
+                                    <span className="material-symbols-outlined text-4xl text-brand-green/20 mb-3">volunteer_activism</span>
+                                    <p className="text-brand-green/60 font-medium">You haven't donated yet.</p>
+                                    <Link to="/create-donation" className="text-primary font-bold text-sm hover:underline mt-2 inline-block">Create your first donation →</Link>
+                                </motion.div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <AnimatePresence>
+                                        {myDonations.map((donation, index) => (
+                                            <motion.div
+                                                key={donation.id}
+                                                className="bg-white dark:bg-white/5 p-5 rounded-2xl border border-brand-green/5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                transition={{ delay: index * 0.05 }}
+                                            >
+                                                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-4 -mt-4"></div>
+                                                <div className="relative z-10">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-bold text-lg text-brand-green dark:text-white">{donation.foodItem}</h4>
+                                                        <span className={`text-xs px-2 py-0.5 rounded-full border font-bold ${donation.status === 'AVAILABLE' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                                                            {donation.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className="space-y-1.5 text-sm text-gray-500 mt-3">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="material-symbols-outlined text-[16px]">production_quantity_limits</span>
+                                                            <span>Qty: <span className="font-semibold text-gray-700 dark:text-gray-200">{donation.quantity}</span></span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="material-symbols-outlined text-[16px]">schedule</span>
+                                                            <span>Expires: <span className="font-semibold text-red-500">{new Date(donation.expiryTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span></span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="material-symbols-outlined text-[16px]">location_on</span>
+                                                            <span className="truncate">{donation.pickupAddress}</span>
+                                                        </div>
+                                                        {donation.requests && donation.requests.length > 0 && (
+                                                            <div className="flex items-center gap-1.5 text-primary">
+                                                                <span className="material-symbols-outlined text-[16px]">group</span>
+                                                                <span className="font-semibold">{donation.requests.length} request(s)</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {donation.status === 'AVAILABLE' && (
+                                                        <button
+                                                            onClick={() => handleDeleteDonation(donation.id)}
+                                                            className="mt-4 w-full py-2 text-sm border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-semibold transition-colors flex items-center justify-center gap-1"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                                                            Remove
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            )}
+                        </motion.div>
+
                         {/* Pending Requests Section */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
                         >
                             <h3 className="text-xl font-bold text-brand-green dark:text-white mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">notifications_active</span>
-                                Pending Requests
+                                Incoming Requests
+                                {pendingRequests > 0 && (
+                                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">{pendingRequests} pending</span>
+                                )}
                             </h3>
                             {loading ? (
                                 <p className="text-brand-green/60 animate-pulse">Loading requests...</p>
@@ -175,7 +303,7 @@ export default function DonorDashboard() {
                                                                 <span className="material-symbols-outlined text-primary text-base mt-0.5">apartment</span>
                                                                 <div>
                                                                     <span className="font-semibold block text-brand-green dark:text-white">NGO Name</span>
-                                                                    {req.ngo.name}
+                                                                    {req.ngo?.name || 'Unknown NGO'}
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
@@ -207,7 +335,7 @@ export default function DonorDashboard() {
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="material-symbols-outlined text-gray-400">call</span>
-                                                                        <a href={`tel:${req.ngo.phone}`} className="hover:underline text-primary font-bold hover:text-primary/80 transition-colors">Call NGO: {req.ngo.phone || 'N/A'}</a>
+                                                                        <a href={`tel:${req.ngo?.phone}`} className="hover:underline text-primary font-bold hover:text-primary/80 transition-colors">Call NGO: {req.ngo?.phone || 'N/A'}</a>
                                                                     </div>
                                                                     {req.volunteerName ? (
                                                                         <>
@@ -271,4 +399,3 @@ export default function DonorDashboard() {
         </div>
     );
 }
-

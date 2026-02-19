@@ -39,7 +39,17 @@ export default function Tracking() {
                 </div>
 
                 <div className="bg-white dark:bg-white/5 rounded-2xl shadow-sm border border-brand-green/10 p-8">
-                    <h2 className="text-xl font-bold text-brand-green dark:text-white mb-6">Delivery Status</h2>
+                    <h2 className="text-xl font-bold text-brand-green dark:text-white mb-4">Delivery Status</h2>
+                    <div className="flex flex-wrap gap-4 mb-6 text-sm">
+                        <div className="flex items-center gap-1.5 bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10">
+                            <span className="material-symbols-outlined text-[16px] text-primary">person</span>
+                            <span className="text-brand-green dark:text-white">Donor: <span className="font-semibold">Demo Donor</span></span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-brand-green/5 px-3 py-1.5 rounded-full border border-brand-green/10">
+                            <span className="material-symbols-outlined text-[16px] text-brand-green">apartment</span>
+                            <span className="text-brand-green dark:text-white">NGO: <span className="font-semibold">City Shelter Foundation</span></span>
+                        </div>
+                    </div>
 
                     <div className="relative">
                         {/* Connecting Line */}
@@ -51,8 +61,8 @@ export default function Tracking() {
                                 <div key={step.id} className="flex items-center gap-6">
                                     <div
                                         className={`size-12 rounded-full flex items-center justify-center border-4 transition-all duration-500 flex-shrink-0 ${index <= currentStep
-                                                ? 'bg-primary border-white dark:border-zinc-800 text-white shadow-lg shadow-primary/30'
-                                                : 'bg-white dark:bg-zinc-800 border-brand-green/10 text-brand-green/30'
+                                            ? 'bg-primary border-white dark:border-zinc-800 text-white shadow-lg shadow-primary/30'
+                                            : 'bg-white dark:bg-zinc-800 border-brand-green/10 text-brand-green/30'
                                             }`}
                                     >
                                         <span className="material-symbols-outlined">{step.icon}</span>

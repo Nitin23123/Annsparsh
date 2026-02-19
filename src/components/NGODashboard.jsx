@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 import api from '../api';
 import socket from '../socket';
 
@@ -11,13 +12,14 @@ export default function NGODashboard() {
     const [showVolunteerModal, setShowVolunteerModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [volunteerData, setVolunteerData] = useState({ name: '', phone: '', vehicle: '' });
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [donationsRes, requestsRes] = await Promise.all([
                     api.get('/donations'),
-                    api.get('/requests/ngo') // Assuming this endpoint exists or we filter by user
+                    api.get('/requests/ngo')
                 ]);
                 setDonations(donationsRes.data);
                 setMyRequests(requestsRes.data);
@@ -48,12 +50,12 @@ export default function NGODashboard() {
     const handleRequest = async (donationId) => {
         try {
             const res = await api.post('/requests', { donationId });
-            alert('Request sent successfully!');
+            toast.success('Request sent successfully!');
             setMyRequests((prev) => [res.data, ...prev]);
         } catch (error) {
             console.error('Error sending request:', error);
             const msg = error.response?.data?.message || 'Failed to send request.';
-            alert(msg);
+            toast.error(msg);
         }
     };
 
@@ -70,14 +72,30 @@ export default function NGODashboard() {
                 volunteerPhone: volunteerData.phone,
                 vehicleNumber: volunteerData.vehicle
             });
-            alert('Volunteer assigned successfully!');
+            toast.success('Volunteer assigned successfully!');
             setShowVolunteerModal(false);
             setVolunteerData({ name: '', phone: '', vehicle: '' });
+            // Refresh requests
+            const requestsRes = await api.get('/requests/ngo');
+            setMyRequests(requestsRes.data);
         } catch (error) {
             console.error('Error assigning volunteer:', error);
-            alert('Failed to assign volunteer');
+            toast.error('Failed to assign volunteer');
         }
     };
+
+    // Stats calculations
+    const totalRequests = myRequests.length;
+    const approvedRequests = myRequests.filter(r => r.status === 'APPROVED').length;
+    const pendingRequests = myRequests.filter(r => r.status === 'PENDING').length;
+    const availableDonations = donations.length;
+
+    const stats = [
+        { label: 'Available Food', value: availableDonations, icon: 'restaurant', color: 'from-emerald-500 to-green-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+        { label: 'Requests Sent', value: totalRequests, icon: 'send', color: 'from-blue-500 to-indigo-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+        { label: 'Approved', value: approvedRequests, icon: 'check_circle', color: 'from-violet-500 to-purple-600', bg: 'bg-violet-50 dark:bg-violet-900/20' },
+        { label: 'Pending', value: pendingRequests, icon: 'hourglass_top', color: 'from-orange-400 to-amber-500', bg: 'bg-orange-50 dark:bg-orange-900/20' },
+    ];
 
     return (
         <div className="bg-brand-cream dark:bg-background-dark text-deep-green font-display min-h-screen">
@@ -124,7 +142,7 @@ export default function NGODashboard() {
                     {/* Header */}
                     <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-6 bg-brand-cream/80 backdrop-blur-md dark:bg-background-dark/80 border-b border-brand-green/5">
                         <div>
-                            <h2 className="text-2xl font-bold text-brand-green dark:text-warm-cream">NGO Dashboard</h2>
+                            <h2 className="text-2xl font-bold text-brand-green dark:text-warm-cream">Welcome, {user.name || 'NGO'}</h2>
                             <p className="text-brand-green/70 dark:text-white/60 text-sm">Find available food donations and manage requests.</p>
                         </div>
                         <div className="flex items-center gap-4">
@@ -137,6 +155,29 @@ export default function NGODashboard() {
 
                     <div className="px-8 pb-10 space-y-12 mt-6">
 
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {stats.map((stat, index) => (
+                                <motion.div
+                                    key={stat.label}
+                                    className={`${stat.bg} p-5 rounded-2xl border border-brand-green/5 relative overflow-hidden group`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    whileHover={{ y: -3 }}
+                                >
+                                    <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-150 duration-500`}></div>
+                                    <div className="relative z-10">
+                                        <div className={`inline-flex items-center justify-center size-10 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg mb-3`}>
+                                            <span className="material-symbols-outlined text-xl">{stat.icon}</span>
+                                        </div>
+                                        <p className="text-3xl font-bold text-brand-green dark:text-white">{loading ? '—' : stat.value}</p>
+                                        <p className="text-sm text-brand-green/60 dark:text-white/60 font-medium mt-1">{stat.label}</p>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+
                         {/* My Requests Section */}
                         <motion.section
                             initial={{ opacity: 0, y: 20 }}
@@ -146,6 +187,9 @@ export default function NGODashboard() {
                             <h3 className="text-xl font-bold text-brand-green dark:text-white mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">list_alt</span>
                                 My Requests
+                                {pendingRequests > 0 && (
+                                    <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">{pendingRequests} pending</span>
+                                )}
                             </h3>
                             {myRequests.length === 0 ? (
                                 <motion.div
@@ -192,11 +236,11 @@ export default function NGODashboard() {
                                                             >
                                                                 <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                                                                     <span className="material-symbols-outlined text-sm">person</span>
-                                                                    <span className="font-semibold">{req.donation.donor.name}</span>
+                                                                    <span className="font-semibold">{req.donation.donor?.name || 'Unknown'}</span>
                                                                 </div>
                                                                 <div className="flex items-center gap-1">
                                                                     <span className="material-symbols-outlined text-sm text-primary">call</span>
-                                                                    <a href={`tel:${req.donation.donor.phone}`} className="text-primary font-bold hover:underline">{req.donation.donor.phone || 'N/A'}</a>
+                                                                    <a href={`tel:${req.donation.donor?.phone}`} className="text-primary font-bold hover:underline">{req.donation.donor?.phone || 'N/A'}</a>
                                                                 </div>
                                                             </motion.div>
                                                         )}
@@ -237,6 +281,7 @@ export default function NGODashboard() {
                             <h2 className="text-2xl font-bold text-brand-green dark:text-white mb-6 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">restaurant</span>
                                 Available Food
+                                <span className="text-sm font-normal text-brand-green/50 ml-1">({donations.length} listings)</span>
                             </h2>
                             {donations.length === 0 ? (
                                 <div className="text-center py-12">
@@ -273,6 +318,13 @@ export default function NGODashboard() {
                                                     <div className="flex justify-between items-start mb-2">
                                                         <h3 className="text-xl font-bold text-brand-green dark:text-white leading-tight">{donation.foodItem}</h3>
                                                     </div>
+
+                                                    {donation.donor?.name && (
+                                                        <div className="flex items-center gap-1.5 mb-3 text-sm text-gray-500">
+                                                            <span className="material-symbols-outlined text-[16px] text-primary">person</span>
+                                                            <span>Donated by: <span className="font-semibold text-brand-green dark:text-white">{donation.donor.name}</span></span>
+                                                        </div>
+                                                    )}
 
                                                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">{donation.description || "No description provided."}</p>
 
