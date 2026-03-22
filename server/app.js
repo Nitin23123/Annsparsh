@@ -1,54 +1,18 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
-const { Server } = require('socket.io');
-require('dotenv').config();
-
-const authRoutes = require('./routes/auth.routes');
-const donationRoutes = require('./routes/donation.routes');
-const requestRoutes = require('./routes/request.routes');
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: "*", // Allow all origins for dev
-        methods: ["GET", "POST", "PUT", "DELETE"]
-    }
-});
 
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 
-// Attach io to req
-app.use((req, res, next) => {
-    req.io = io;
-    next();
-});
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/donations', require('./routes/donation.routes'));
+app.use('/api/requests', require('./routes/request.routes'));
+app.use('/api/admin', require('./routes/admin.routes'));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/donations', donationRoutes);
-app.use('/api/requests', requestRoutes);
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// Socket connection (optional logging)
-io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-    });
-});
-
-// Health check
-app.get('/', (req, res) => {
-    res.send('Annsparsh Backend is running');
-});
-
-// Start server
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

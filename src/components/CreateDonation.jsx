@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api';
 
@@ -10,7 +11,7 @@ export default function CreateDonation() {
         quantity: '',
         expiryTime: '',
         description: '',
-        pickupAddress: 'Royal Heritage Hotel, MG Road', // Default for demo
+        pickupAddress: '',
     });
     const [loading, setLoading] = useState(false);
 
@@ -26,12 +27,23 @@ export default function CreateDonation() {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/donations', formData);
-            alert('Donation listed successfully!');
+            const hoursLeft = Math.ceil((new Date(formData.expiryTime) - Date.now()) / 3600000);
+            if (hoursLeft <= 0) {
+                toast.error('Pickup time must be in the future.');
+                setLoading(false);
+                return;
+            }
+            await api.post('/donations', {
+                food_type: formData.foodItem,
+                quantity: formData.quantity,
+                address: formData.pickupAddress,
+                best_before: hoursLeft,
+                notes: formData.description || null,
+            });
+            toast.success('Donation listed successfully!');
             navigate('/donor-dashboard');
         } catch (error) {
-            console.error('Error creating donation:', error);
-            alert('Failed to list donation. Please try again.');
+            toast.error(error.response?.data?.error || 'Failed to list donation. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -106,6 +118,20 @@ export default function CreateDonation() {
                                     required
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="pickupAddress" className="block text-sm font-bold text-brand-green dark:text-white mb-2">Pickup Address</label>
+                            <input
+                                type="text"
+                                id="pickupAddress"
+                                name="pickupAddress"
+                                value={formData.pickupAddress}
+                                onChange={handleChange}
+                                placeholder="e.g. 12 MG Road, New Delhi"
+                                className="w-full px-4 py-3 rounded-xl bg-background-light dark:bg-white/5 border border-brand-green/10 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                required
+                            />
                         </div>
 
                         <div>

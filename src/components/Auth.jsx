@@ -22,32 +22,21 @@ export default function Auth() {
         e.preventDefault();
         setError('');
         setLoading(true);
-
         try {
-            if (isLogin) {
-                const response = await api.post('/auth/login', { email: formData.email, password: formData.password });
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
+            const endpoint = isLogin ? '/auth/login' : '/auth/register';
+            const payload = isLogin
+                ? { email: formData.email, password: formData.password }
+                : { name: formData.name, email: formData.email, password: formData.password, role: formData.role };
 
-                // Redirect based on role
-                if (response.data.user.role === 'NGO') {
-                    navigate('/ngo-dashboard');
-                } else if (response.data.user.role === 'DONOR') {
-                    navigate('/donor-dashboard');
-                } else if (response.data.user.role === 'ADMIN') {
-                    navigate('/admin');
-                } else {
-                    navigate('/role-selection');
-                }
-            } else {
-                const response = await api.post('/auth/signup', formData);
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-                navigate('/role-selection');
-            }
+            const { data } = await api.post(endpoint, payload);
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            if (data.user.role === 'NGO') navigate('/ngo-dashboard');
+            else if (data.user.role === 'DONOR') navigate('/donor-dashboard');
+            else if (data.user.role === 'ADMIN') navigate('/admin');
         } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.message || 'Authentication failed. Please try again.');
+            setError(err.response?.data?.error || 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -237,26 +226,6 @@ export default function Auth() {
                                         </Link>
                                     </div>
                                 </form>
-                                {/* Divider */}
-                                <div className="relative my-8">
-                                    <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-gray-100 dark:border-zinc-800"></div>
-                                    </div>
-                                    <div className="relative flex justify-center text-xs uppercase">
-                                        <span className="bg-white dark:bg-zinc-900 px-3 text-gray-400">Or continue with</span>
-                                    </div>
-                                </div>
-                                {/* Social Login */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
-                                        <img className="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG39GxqNRVMNmTEph9qeIOYvz9wNt3Pgb8YdsNVhKDK5DUFB9BQiXdR9s7nblJl2oZfHQVVk7tztTFmB2V6dKMevF3xCWd7UdhKMNyNmCJtDtIKt_IkRGZorJySpy6lREskDe65e8A3VCdeyNvKVv7ySub1PudyuyiZH75PWbUHRPZ2LRn2UB1bhijVyEEqJ26XUWuB0PSshaVOuhd58meL7-4VfZZyAj3I7bBlSEqIYoGiGbAEyPL3lEkDWEW6gGu6ggr5pKwEZg" alt="Google" data-alt="Google logo icon" />
-                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Google</span>
-                                    </button>
-                                    <button className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
-                                        <img className="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV9fV6yCeNGBzTX_Av-3VKrXcj2sZV_WkVSANgznqsfC2e7bmiiWR04d5otWgP9sh-0zlh1W15htKPS2fnwwuP2TBi_dUz3is2W8_ISD4vZaJNMc3t5pQ4hhdbLXt5laoQsV4clXcm04MRgwh_51DjMQ68XBc-elk8lNjiy8mcDILGbFOhV9Pv4ly4lHGpSSWZcQ6qSdHIb2N5l0z2Ol329e59_WnuV5p0O6Wf2OKoDdJl9u_84fiJtwLo4_IvaSpnkk3JVkBJvqw" alt="LinkedIn" data-alt="LinkedIn logo icon" />
-                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">LinkedIn</span>
-                                    </button>
-                                </div>
                             </div>
                             {/* Form Footer */}
                             <div className="bg-gray-50 dark:bg-zinc-800/50 p-6 text-center border-t border-gray-100 dark:border-zinc-800">

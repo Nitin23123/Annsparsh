@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import socket from './socket';
 
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -43,31 +41,6 @@ function Home() {
 }
 
 function App() {
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to socket server');
-    });
-
-    socket.on('donation:created', (data) => {
-      toast.info(`New Donation Available: ${data.foodItem}`);
-    });
-
-    socket.on('request:created', (data) => {
-      toast.warning(`New Request for ${data.donation.foodItem}`);
-    });
-
-    socket.on('request:updated', (data) => {
-      const msg = data.status === 'APPROVED' ? 'Request Approved! 🎉' : 'Request Rejected ❌';
-      toast.success(msg);
-    });
-
-    return () => {
-      socket.off('connect');
-      socket.off('donation:created');
-      socket.off('request:created');
-      socket.off('request:updated');
-    };
-  }, []);
 
   return (
     <div className="app">
