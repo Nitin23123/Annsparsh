@@ -28,6 +28,12 @@ CREATE TABLE IF NOT EXISTS requests (
     donation_id INTEGER REFERENCES donations(id) ON DELETE CASCADE,
     ngo_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     status VARCHAR(20) CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')) DEFAULT 'PENDING',
+    volunteer_name VARCHAR(255),
+    volunteer_phone VARCHAR(20),
+    vehicle_type VARCHAR(100),
+    vehicle_number VARCHAR(50),
+    otp VARCHAR(6),
+    otp_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
