@@ -6,6 +6,7 @@ const pool = new Pool({
     database: process.env.DB_NAME || 'annsparsh',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'Nitin@23123',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
 module.exports = pool;

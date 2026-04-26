@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS requests (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Seed admin user (password: admin123)
+-- Seed admin user (password: password)
 INSERT INTO users (name, email, password_hash, role, is_verified)
 VALUES (
     'Admin',
