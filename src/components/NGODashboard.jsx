@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import api from '../api';
+import socket from '../socket';
 
 function getFoodIcon(foodType = '') {
     const lower = foodType.toLowerCase();
@@ -68,6 +69,47 @@ export default function NGODashboard() {
             localStorage.setItem('user', JSON.stringify(data));
         }).catch(() => {});
         fetchData();
+    }, [fetchData]);
+
+    useEffect(() => {
+        const onAvailable = ({ donation }) => {
+            setAvailable(prev => {
+                if (prev.some(d => d.id === donation.id)) return prev;
+                return [donation, ...prev];
+            });
+            toast.info(`New donation: ${donation.food_type}`);
+        };
+        const onResolved = ({ request, status, otp }) => {
+            setMyRequests(prev => prev.map(r => {
+                if (r.id !== request.id) return r;
+                return { ...r, ...request, status, otp: otp ?? r.otp };
+            }));
+            if (otp) {
+                toast.success(`OTP issued: ${otp}`);
+            } else {
+                toast.info(`Request ${status.toLowerCase()}`);
+            }
+        };
+        const onCollected = ({ donation, request }) => {
+            setMyRequests(prev => prev.map(r => r.id === request.id ? { ...r, otp_verified: true } : r));
+            setAvailable(prev => prev.filter(d => d.id !== donation.id));
+            toast.success('Pickup confirmed');
+        };
+        const onConnect = () => {
+            fetchData();
+        };
+
+        socket.on('donation:available', onAvailable);
+        socket.on('request:resolved', onResolved);
+        socket.on('pickup:collected', onCollected);
+        socket.on('connect', onConnect);
+
+        return () => {
+            socket.off('donation:available', onAvailable);
+            socket.off('request:resolved', onResolved);
+            socket.off('pickup:collected', onCollected);
+            socket.off('connect', onConnect);
+        };
     }, [fetchData]);
 
     const pendingCount = myRequests.filter(r => r.status === 'PENDING').length;
