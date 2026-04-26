@@ -27,7 +27,12 @@ router.post('/', authMiddleware, requireRole('NGO'), async (req, res) => {
             `INSERT INTO requests (donation_id, ngo_id) VALUES ($1, $2) RETURNING *`,
             [donation_id, req.user.id]
         );
-        res.status(201).json(result.rows[0]);
+        const newRequest = result.rows[0];
+        req.app.get('io').to(`user:${donation.rows[0].donor_id}`).emit('request:incoming', {
+            request: newRequest,
+            donation: donation.rows[0],
+        });
+        res.status(201).json(newRequest);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

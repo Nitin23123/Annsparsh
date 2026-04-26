@@ -15,7 +15,9 @@ router.post('/', authMiddleware, requireRole('DONOR'), async (req, res) => {
              RETURNING *`,
             [req.user.id, food_type, quantity, address, best_before, notes || null]
         );
-        res.status(201).json(result.rows[0]);
+        const donation = result.rows[0];
+        req.app.get('io').to('role:NGO').emit('donation:available', { donation });
+        res.status(201).json(donation);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
