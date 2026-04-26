@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import api from '../api';
+import socket from '../socket';
 
 const FOOD_ICONS = { default: '🥘', rice: '🍚', bread: '🍞', biryani: '🍛', fruit: '🍎', dal: '🍲', veg: '🥦', curry: '🍛' };
 
@@ -63,6 +64,40 @@ export default function DonorDashboard() {
             localStorage.setItem('user', JSON.stringify(data));
         }).catch(() => {});
         fetchData();
+    }, [fetchData]);
+
+    useEffect(() => {
+        const onIncoming = ({ request, donation }) => {
+            setRequests(prev => {
+                if (prev.some(r => r.id === request.id)) return prev;
+                const enriched = {
+                    ...request,
+                    food_type: donation.food_type,
+                    quantity: donation.quantity,
+                    address: donation.address,
+                };
+                return [enriched, ...prev];
+            });
+            toast.info(`New request for ${donation.food_type}`);
+        };
+        const onCollected = ({ donation, request }) => {
+            setRequests(prev => prev.map(r => r.id === request.id ? { ...r, otp_verified: true, status: 'APPROVED' } : r));
+            setDonations(prev => prev.map(d => d.id === donation.id ? { ...d, status: 'COLLECTED' } : d));
+            toast.success('Pickup confirmed');
+        };
+        const onConnect = () => {
+            fetchData();
+        };
+
+        socket.on('request:incoming', onIncoming);
+        socket.on('pickup:collected', onCollected);
+        socket.on('connect', onConnect);
+
+        return () => {
+            socket.off('request:incoming', onIncoming);
+            socket.off('pickup:collected', onCollected);
+            socket.off('connect', onConnect);
+        };
     }, [fetchData]);
 
     const activeDonations = donations.filter(d => d.status === 'AVAILABLE').length;
