@@ -89,9 +89,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Server-side Socket.IO foundation: install socket.io@4.8.3, create server/socket.js with JWT handshake + is_verified gate + room auto-join, refactor server/app.js to http.createServer + httpServer.listen
-- [ ] 08-02-PLAN.md — Server-side emit wiring: donation:available + request:incoming + 2x request:resolved (approve + volunteer-assign w/ OTP) + pickup:collected dual-room emit; verify-otp SELECT projection fix
-- [ ] 08-03-PLAN.md — Frontend wiring: function-form auth in src/socket.js (reconnect-safe), DonorDashboard + NGODashboard listeners with named handlers + cleanup, on-connect REST refetch
+- [x] 08-01-PLAN.md — Server-side Socket.IO foundation: install socket.io@4.8.3, create server/socket.js with JWT handshake + is_verified gate + room auto-join, refactor server/app.js to http.createServer + httpServer.listen
+- [x] 08-02-PLAN.md — Server-side emit wiring: donation:available + request:incoming + 2x request:resolved (approve + volunteer-assign w/ OTP) + pickup:collected dual-room emit; verify-otp SELECT projection fix
+- [x] 08-03-PLAN.md — Frontend wiring: function-form auth in src/socket.js (reconnect-safe), DonorDashboard + NGODashboard listeners with named handlers + cleanup, on-connect REST refetch
 
 #### Phase 9: SMS + WhatsApp alerts
 **Goal**: Critical events (donation approved, OTP issued, pickup confirmed) reach users via SMS/WhatsApp even when they're not in the app.
