@@ -156,7 +156,8 @@ router.post('/:id/verify-otp', authMiddleware, requireRole('DONOR'), async (req,
     if (!otp) return res.status(400).json({ error: 'OTP is required' });
     try {
         const check = await pool.query(
-            `SELECT r.* FROM requests r
+            `SELECT r.*, d.donor_id, d.food_type, d.quantity, d.address, d.best_before, d.status AS donation_status
+             FROM requests r
              JOIN donations d ON r.donation_id = d.id
              WHERE r.id = $1 AND d.donor_id = $2 AND r.status = 'APPROVED'`,
             [req.params.id, req.user.id]
@@ -166,9 +167,23 @@ router.post('/:id/verify-otp', authMiddleware, requireRole('DONOR'), async (req,
         const request = check.rows[0];
         if (request.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
 
-        // Mark OTP verified, donation as COLLECTED
         await pool.query(`UPDATE requests SET otp_verified = TRUE WHERE id = $1`, [req.params.id]);
         await pool.query(`UPDATE donations SET status = 'COLLECTED' WHERE id = $1`, [request.donation_id]);
+
+        const collectedRequest = { ...request, otp_verified: true };
+        const collectedDonation = {
+            id: request.donation_id,
+            donor_id: request.donor_id,
+            food_type: request.food_type,
+            quantity: request.quantity,
+            address: request.address,
+            best_before: request.best_before,
+            status: 'COLLECTED',
+        };
+        req.app.get('io')
+            .to(`user:${request.donor_id}`)
+            .to(`user:${request.ngo_id}`)
+            .emit('pickup:collected', { donation: collectedDonation, request: collectedRequest });
 
         res.json({ message: 'OTP verified. Food marked as collected.' });
     } catch (err) {
