@@ -106,6 +106,11 @@ router.put('/:id', authMiddleware, requireRole('DONOR'), async (req, res) => {
             );
         }
 
+        req.app.get('io').to(`user:${request.ngo_id}`).emit('request:resolved', {
+            request: { ...request, status: newStatus },
+            status: newStatus,
+        });
+
         res.json({ message: `Request ${newStatus}` });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -133,7 +138,13 @@ router.put('/:id/volunteer', authMiddleware, requireRole('NGO'), async (req, res
              WHERE id = $6 RETURNING *`,
             [volunteer_name, volunteer_phone, vehicle_type, vehicle_number, otp, req.params.id]
         );
-        res.json(result.rows[0]);
+        const updated = result.rows[0];
+        req.app.get('io').to(`user:${updated.ngo_id}`).emit('request:resolved', {
+            request: updated,
+            status: updated.status,
+            otp: updated.otp,
+        });
+        res.json(updated);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
