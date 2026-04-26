@@ -2,19 +2,23 @@
 
 > **Last updated:** 2026-04-26
 > **Current branch:** main
-> **Latest commit:** 7072a38 — docs: add plain-English backend explanation
+> **Latest commit:** 47a9010 — plan(08): realtime notifications — 3 plans across 3 waves
 
 ---
 
 ## Active milestone
 
-**M2 — Pilot-Hardening** (see [ROADMAP.md](ROADMAP.md))
+**v1.1 Pilot-Hardening** (see [ROADMAP.md](ROADMAP.md))
 
 ## Active phase
 
-None active. Next up: **P8 — Realtime notifications (Socket.IO)**.
+**Phase 8: Realtime notifications via Socket.IO**
+- Status: Ready to execute
+- Plans: 3 (08-01, 08-02, 08-03 across 3 waves)
+- Coverage: REQ-08
+- Last activity: 2026-04-26 — plans verified (VERIFICATION PASSED)
 
-To start it, run: `gsd /gsd:plan-phase P8`
+To execute: `gsd /gsd-execute-phase 8` (recommend `/clear` first)
 
 ---
 
