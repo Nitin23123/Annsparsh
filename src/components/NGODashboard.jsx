@@ -185,6 +185,7 @@ export default function NGODashboard() {
                         My Requests
                         {pendingCount > 0 && <span className="ml-auto text-[10px] bg-amber-400 text-white px-1.5 py-0.5 rounded-full font-bold">{pendingCount}</span>}
                     </button>
+                    <NavLnk to="/history" icon="history" label="History" />
                     <NavLnk to="/profile" icon="person" label="Profile" />
                     <div className="pt-3 mt-3 border-t border-white/10 space-y-0.5">
                         <NavLnk to="/" icon="home" label="Home" />
