@@ -1,263 +1,384 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api';
+import BrandMark from './BrandMark';
+import { Button, Field } from './dashboard/ui';
+import { inputClass } from './dashboard/tokens';
+
+const ROLES = {
+  DONOR: {
+    id: 'DONOR',
+    name: 'Donor',
+    blurb: 'For restaurants, households and caterers sharing surplus meals.',
+    namePrompt: 'Full name / business name',
+    namePlaceholder: 'e.g. Rahul Sharma, or Cafe Delight',
+    emailPlaceholder: 'donor@example.com',
+    demoEmail: 'donor@example.com',
+    demoPass: 'password123',
+  },
+  NGO: {
+    id: 'NGO',
+    name: 'NGO',
+    blurb: 'For registered non-profits collecting and distributing food.',
+    namePrompt: 'Organisation name',
+    namePlaceholder: 'e.g. Robin Hood Army Mumbai',
+    emailPlaceholder: 'contact@ngo.org',
+    demoEmail: 'ngo@example.com',
+    demoPass: 'password123',
+  },
+  ADMIN: {
+    id: 'ADMIN',
+    name: 'Admin',
+    blurb: 'Verification queue, organisation audit and platform metrics.',
+    namePrompt: 'Full name',
+    namePlaceholder: 'Your name',
+    emailPlaceholder: 'admin@annsparsh.com',
+    demoEmail: 'admin@annsparsh.com',
+    demoPass: 'password',
+  },
+};
 
 export default function Auth() {
-    const [isLogin, setIsLogin] = useState(true);
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        role: 'DONOR'
-    });
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const initialRole = (searchParams.get('role') || 'DONOR').toUpperCase();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-        try {
-            const endpoint = isLogin ? '/auth/login' : '/auth/register';
-            const payload = isLogin
-                ? { email: formData.email, password: formData.password }
-                : { name: formData.name, email: formData.email, password: formData.password, role: formData.role };
+  const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'register');
+  const [selectedRole, setSelectedRole] = useState(ROLES[initialRole] ? initialRole : 'DONOR');
+  const [showPassword, setShowPassword] = useState(false);
 
-            const { data } = await api.post(endpoint, payload);
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: selectedRole,
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [demoPending, setDemoPending] = useState(null);
 
-            if (data.user.role === 'NGO') navigate('/ngo-dashboard');
-            else if (data.user.role === 'DONOR') navigate('/donor-dashboard');
-            else if (data.user.role === 'ADMIN') navigate('/admin');
-        } catch (err) {
-            setError(err.response?.data?.error || 'Something went wrong');
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    const queryRole = searchParams.get('role');
+    if (queryRole && ROLES[queryRole.toUpperCase()]) {
+      setSelectedRole(queryRole.toUpperCase());
+    }
+    if (searchParams.get('mode') === 'register') {
+      setIsLogin(false);
+    } else if (searchParams.get('mode') === 'login') {
+      setIsLogin(true);
+    }
+  }, [searchParams]);
 
-    return (
-        <div className="bg-brand-cream dark:bg-background-dark min-h-screen flex flex-col font-display">
-            {/* Top Navigation - Custom for Auth Page as per design */}
-            <header className="w-full px-6 lg:px-40 py-4 flex items-center justify-between bg-white/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-brand-green/10 sticky top-0 z-50">
-                <div className="flex items-center gap-2 text-brand-green dark:text-primary">
-                    <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                        <span className="material-symbols-outlined">eco</span>
-                    </div>
-                    <Link to="/" className="text-xl font-bold tracking-tight">AnnSparsh</Link>
-                </div>
-                <div className="flex gap-4">
-                    <button className="hidden md:flex items-center justify-center px-4 py-2 text-sm font-semibold text-brand-green hover:text-primary transition-colors">
-                        About Us
-                    </button>
-                    <button className="flex items-center justify-center px-4 py-2 text-sm font-semibold border border-brand-green/20 rounded-lg text-brand-green hover:bg-brand-green/5 transition-colors">
-                        Contact
-                    </button>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="flex-1 flex items-center justify-center p-6 w-full">
-                <div className="w-full max-w-7xl flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24">
-                    {/* Left Side: Branding & Visual */}
-                    <div className="hidden md:flex flex-col flex-1 space-y-8">
-                        <div>
-                            <h2 className="text-5xl font-extrabold text-brand-green dark:text-white leading-tight mb-4">
-                                Reducing waste, <br /><span className="text-primary">feeding hope.</span>
-                            </h2>
-                            <p className="text-lg text-brand-green/70 dark:text-gray-400 max-w-md">
-                                Join our community of donors and volunteers dedicated to making sure no meal goes to waste. Every contribution counts towards a hunger-free world.
-                            </p>
-                        </div>
-                        <div className="relative rounded-2xl overflow-hidden aspect-video shadow-2xl">
-                            <img className="object-cover w-full h-full" alt="Fresh organic vegetables in a wooden crate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm6N4a8W-AA_py815cc352I5HF0E6WiaMS30M6_UzXm7S0H13Qz8vTQ-RgCtpMEYikCAGMlvR1j0PeSbsRevXzpjE2E9PaNZv1HtCnqcdK2Jhq6YkxRipHNowrTANeVMGX2gHmdTgxak-egUXVn7fz2F6uit4vqZ9OtwP2y-V_v6LBnvGDBKJekgCadntEx443A1ZgT8NqnRMCBHJJ-iYpKHTN77qhdAmRCZ_jfhXWKO5yFqQjQf807Nz5vF26OaEZxmaje_nDZQY" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-brand-green/60 to-transparent"></div>
-                            <div className="absolute bottom-6 left-6 text-white">
-                                <p className="font-bold text-xl italic">"Bringing surplus food to those in need."</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-8 py-4">
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-brand-green dark:text-primary">12k+</span>
-                                <span className="text-sm text-brand-green/60 dark:text-gray-400">Meals Saved</span>
-                            </div>
-                            <div className="w-px h-10 bg-brand-green/20"></div>
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-brand-green dark:text-primary">500+</span>
-                                <span className="text-sm text-brand-green/60 dark:text-gray-400">Volunteers</span>
-                            </div>
-                            <div className="w-px h-10 bg-brand-green/20"></div>
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-brand-green dark:text-primary">85</span>
-                                <span className="text-sm text-brand-green/60 dark:text-gray-400">Partner NGOs</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Side: Auth Card */}
-                    <div className="w-full max-w-md mx-auto">
-                        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl overflow-hidden border border-brand-green/5">
-                            {/* Toggle Tabs */}
-                            <div className="flex border-b border-gray-100 dark:border-zinc-800">
-                                <button
-                                    onClick={() => { setIsLogin(true); setError(''); }}
-                                    className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors ${isLogin ? 'border-primary text-brand-green dark:text-white' : 'border-transparent text-gray-400 hover:text-brand-green'}`}
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={() => { setIsLogin(false); setError(''); }}
-                                    className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors ${!isLogin ? 'border-primary text-brand-green dark:text-white' : 'border-transparent text-gray-400 hover:text-brand-green'}`}
-                                >
-                                    Register
-                                </button>
-                            </div>
-                            <div className="p-8">
-                                <div className="mb-8">
-                                    <h3 className="text-2xl font-bold text-brand-green dark:text-white">
-                                        {isLogin ? 'Welcome Back' : 'Create Account'}
-                                    </h3>
-                                    <p className="text-gray-500 text-sm mt-1">
-                                        {isLogin ? 'Please enter your details to sign in.' : 'Join us to make a difference.'}
-                                    </p>
-                                </div>
-
-                                {error && (
-                                    <div className="mb-4 p-3 bg-red-100 border border-red-200 text-red-700 rounded-lg text-sm">
-                                        {error}
-                                    </div>
-                                )}
-
-                                {/* Form */}
-                                <form className="space-y-5" onSubmit={handleSubmit}>
-                                    {!isLogin && (
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Full Name</label>
-                                            <div className="relative">
-                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">person</span>
-                                                <input
-                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
-                                                    type="text"
-                                                    name="name"
-                                                    value={formData.name}
-                                                    onChange={handleChange}
-                                                    placeholder="John Doe"
-                                                    required={!isLogin}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Email Address</label>
-                                        <div className="relative">
-                                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">mail</span>
-                                            <input
-                                                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
-                                                type="email"
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                placeholder="alex@example.com"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    {!isLogin && (
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Role</label>
-                                            <div className="relative">
-                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">badge</span>
-                                                <select
-                                                    name="role"
-                                                    value={formData.role}
-                                                    onChange={handleChange}
-                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none appearance-none"
-                                                >
-                                                    <option value="DONOR">Donor (I have food)</option>
-                                                    <option value="NGO">NGO (I need food)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <label className="text-sm font-semibold text-brand-green dark:text-gray-300 block">Password</label>
-                                            {isLogin && <a href="#" className="text-xs font-bold text-primary hover:underline">Forgot Password?</a>}
-                                        </div>
-                                        <div className="relative">
-                                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">lock</span>
-                                            <input
-                                                className="w-full pl-10 pr-12 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
-                                                type="password"
-                                                name="password"
-                                                value={formData.password}
-                                                onChange={handleChange}
-                                                placeholder="••••••••"
-                                                required
-                                            />
-                                            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-green">
-                                                <span className="material-symbols-outlined text-xl">visibility</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {isLogin && (
-                                        <div className="flex items-center">
-                                            <input id="remember" type="checkbox" className="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300" />
-                                            <label htmlFor="remember" className="ml-2 text-sm text-gray-600 dark:text-gray-400">Keep me logged in</label>
-                                        </div>
-                                    )}
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 mt-8 disabled:opacity-70 disabled:cursor-not-allowed"
-                                    >
-                                        {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-                                    </button>
-                                    <div className="mt-6 text-center">
-                                        <Link to="/verification-pending" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 hover:underline bg-primary/5 px-4 py-2 rounded-full transition-colors">
-                                            <span className="material-symbols-outlined text-lg">hourglass_empty</span>
-                                            Check Application Status
-                                        </Link>
-                                    </div>
-                                </form>
-                            </div>
-                            {/* Form Footer */}
-                            <div className="bg-gray-50 dark:bg-zinc-800/50 p-6 text-center border-t border-gray-100 dark:border-zinc-800">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {isLogin ? "Don't have an account? " : "Already have an account? "}
-                                    <button onClick={() => setIsLogin(!isLogin)} className="text-primary font-bold hover:underline">
-                                        {isLogin ? "Start saving food today" : "Sign in here"}
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
-                        {/* Security Note */}
-                        <div className="mt-6 flex items-center justify-center gap-2 text-brand-green/40 dark:text-gray-500 text-xs">
-                            <span className="material-symbols-outlined text-sm">verified_user</span>
-                            <span>Secure SSL Encrypted Connection</span>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            {/* Footer */}
-            <footer className="w-full py-8 px-6 text-center">
-                <div className="flex flex-wrap justify-center gap-6 text-sm text-brand-green/60 dark:text-gray-500 mb-4">
-                    <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-                    <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-                    <a href="#" className="hover:text-primary transition-colors">Cookies</a>
-                    <a href="#" className="hover:text-primary transition-colors">Help Center</a>
-                </div>
-                <p className="text-xs text-brand-green/40 dark:text-gray-600">
-                    © 2024 AnnSparsh. All rights reserved. Designed for impact.
-                </p>
-            </footer>
-        </div>
+  // One updater for both params. Building two URLSearchParams from the same
+  // stale `searchParams` snapshot meant the second write clobbered the first.
+  const updateParams = (updates) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [k, v] of Object.entries(updates)) next.set(k, v);
+        return next;
+      },
+      { replace: true }
     );
+  };
+
+  const handleRoleSelect = (roleKey) => {
+    setSelectedRole(roleKey);
+    setFormData((prev) => ({ ...prev, role: roleKey }));
+    setError('');
+    updateParams({ role: roleKey });
+  };
+
+  const handleTabChange = (loginState) => {
+    setIsLogin(loginState);
+    setError('');
+
+    // ADMIN can't self-register, so fall back to DONOR on the register tab.
+    const nextRole = !loginState && selectedRole === 'ADMIN' ? 'DONOR' : selectedRole;
+    if (nextRole !== selectedRole) {
+      setSelectedRole(nextRole);
+      setFormData((prev) => ({ ...prev, role: nextRole }));
+    }
+
+    updateParams({ mode: loginState ? 'login' : 'register', role: nextRole });
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const signIn = async (payload, endpoint) => {
+    const { data } = await api.post(endpoint, payload);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    const role = data.user.role;
+    if (role === 'NGO') navigate('/ngo-dashboard');
+    else if (role === 'DONOR') navigate('/donor-dashboard');
+    else if (role === 'ADMIN') navigate('/admin');
+    else navigate('/');
+  };
+
+  const handleDemoLogin = async (roleKey) => {
+    const cfg = ROLES[roleKey];
+    if (!cfg || demoPending || loading) return;
+
+    setError('');
+    setIsLogin(true);
+    setSelectedRole(roleKey);
+    setFormData((prev) => ({
+      ...prev,
+      email: cfg.demoEmail,
+      password: cfg.demoPass,
+      role: roleKey,
+    }));
+    updateParams({ role: roleKey, mode: 'login' });
+
+    setDemoPending(roleKey);
+    try {
+      await signIn({ email: cfg.demoEmail, password: cfg.demoPass }, '/auth/login');
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          `Could not sign in as the ${cfg.name} demo. Is the demo account seeded?`
+      );
+    } finally {
+      setDemoPending(null);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const endpoint = isLogin ? '/auth/login' : '/auth/register';
+      const payload = isLogin
+        ? { email: formData.email, password: formData.password }
+        : {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: selectedRole === 'ADMIN' ? 'DONOR' : selectedRole,
+          };
+
+      await signIn(payload, endpoint);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const meta = ROLES[selectedRole] || ROLES.DONOR;
+  const roleOptions = isLogin ? ['DONOR', 'NGO', 'ADMIN'] : ['DONOR', 'NGO'];
+
+  return (
+    <div className="min-h-screen lg:grid lg:grid-cols-2 bg-brand-cream dark:bg-night font-display">
+      {/* Left: the pitch. Hidden on small screens where the form is the whole job. */}
+      <aside className="hidden lg:flex flex-col justify-between bg-brand-green dark:bg-night-soft p-12 xl:p-16">
+        <Link to="/" className="flex items-center gap-2.5 self-start">
+          <span className="grid place-items-center size-9 rounded-lg bg-primary text-white">
+            <BrandMark className="size-[18px]" />
+          </span>
+          <span className="text-[17px] font-extrabold tracking-tightest text-white">
+            Ann<span className="text-primary">Sparsh</span>
+          </span>
+        </Link>
+
+        <div className="max-w-md">
+          <p className="eyebrow text-primary">Every handover, verified</p>
+          <h2 className="mt-6 text-white text-[34px] leading-[1.12]">
+            Food only moves when a 4-digit code matches.
+          </h2>
+          <p className="mt-6 text-[14.5px] leading-relaxed text-white/50">
+            Donors list surplus. Verified NGOs claim it and send a volunteer. Nothing leaves the
+            donor&rsquo;s door until the code checks out.
+          </p>
+
+          <div className="mt-10 flex gap-2" aria-hidden="true">
+            {['7', '3', '0', '4'].map((d, i) => (
+              <span key={i} className="otp-tile bg-white/10 border border-white/15 text-primary">
+                {d}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-6 text-[12.5px] text-white/35">
+          <Link to="/role-selection" className="hover:text-primary transition-colors">
+            Roles
+          </Link>
+          <Link to="/help" className="hover:text-primary transition-colors">
+            Help
+          </Link>
+          <Link to="/shelters" className="hover:text-primary transition-colors">
+            Shelters
+          </Link>
+        </div>
+      </aside>
+
+      {/* Right: the form */}
+      <main className="flex flex-col justify-center px-5 sm:px-10 lg:px-14 xl:px-20 py-12">
+        <div className="w-full max-w-md mx-auto">
+          <Link to="/" className="lg:hidden flex items-center gap-2.5 mb-10">
+            <span className="grid place-items-center size-9 rounded-lg bg-brand-green dark:bg-primary text-white">
+              <BrandMark className="size-[18px]" />
+            </span>
+            <span className="text-[17px] font-extrabold tracking-tightest text-brand-green dark:text-white">
+              Ann<span className="text-primary">Sparsh</span>
+            </span>
+          </Link>
+
+          <h1 className="text-[30px] leading-tight text-brand-green dark:text-white">
+            {isLogin ? 'Welcome back.' : 'Create your account.'}
+          </h1>
+          <p className="mt-3 text-[14px] text-ink-soft dark:text-white/45">
+            {isLogin
+              ? 'Sign in to your portal.'
+              : 'A minute to set up, then you can list or claim food.'}
+          </p>
+
+          {/* Role selector */}
+          <div className="mt-8">
+            <span className="block mb-2.5 text-[11.5px] font-bold uppercase tracking-[0.1em] text-ink-soft dark:text-white/45">
+              {isLogin ? 'Signing in as' : 'Account type'}
+            </span>
+            <div className="flex gap-1 p-1 rounded-lg border border-brand-line dark:border-night-line">
+              {roleOptions.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleRoleSelect(key)}
+                  aria-pressed={selectedRole === key}
+                  className={`flex-1 h-9 rounded text-[12.5px] font-bold transition-colors ${
+                    selectedRole === key
+                      ? 'bg-brand-green dark:bg-primary text-white'
+                      : 'text-ink-soft dark:text-white/50 hover:text-brand-green dark:hover:text-white'
+                  }`}
+                >
+                  {ROLES[key].name}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2.5 text-[12px] text-ink-faint dark:text-white/30">{meta.blurb}</p>
+          </div>
+
+          {error && (
+            <p
+              role="alert"
+              className="mt-6 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-300 text-[13px] font-semibold"
+            >
+              {error}
+            </p>
+          )}
+
+          <form className="mt-7 space-y-5" onSubmit={handleSubmit}>
+            {!isLogin && (
+              <Field label={meta.namePrompt}>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder={meta.namePlaceholder}
+                  required
+                  className={inputClass}
+                />
+              </Field>
+            )}
+
+            <Field label="Email">
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder={meta.emailPlaceholder}
+                autoComplete="email"
+                required
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label="Password">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  required
+                  className={`${inputClass} pr-11`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 grid place-items-center size-9 rounded text-ink-faint dark:text-white/35 hover:text-brand-green dark:hover:text-white transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </Field>
+
+            {!isLogin && selectedRole === 'NGO' && (
+              <p className="px-4 py-3 rounded-lg bg-primary-soft dark:bg-primary/10 text-[12.5px] leading-relaxed text-primary">
+                New NGO accounts go to an admin for verification before food-claim privileges are
+                unlocked.
+              </p>
+            )}
+
+            <Button type="submit" size="lg" disabled={loading} className="w-full">
+              {loading ? 'Authenticating…' : isLogin ? 'Sign in' : `Register as ${meta.name}`}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-[13px] text-ink-soft dark:text-white/45">
+            {isLogin ? 'No account yet? ' : 'Already registered? '}
+            <button
+              type="button"
+              onClick={() => handleTabChange(!isLogin)}
+              className="font-bold text-primary hover:text-primary-hover"
+            >
+              {isLogin ? 'Create one' : 'Sign in'}
+            </button>
+          </p>
+
+          {/* Demo credentials */}
+          <div className="mt-10 pt-6 border-t border-brand-line dark:border-night-line">
+            <p className="numeric text-[9.5px] uppercase tracking-[0.16em] text-ink-faint dark:text-white/30">
+              One-click demo logins
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {['DONOR', 'NGO', 'ADMIN'].map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleDemoLogin(key)}
+                  disabled={demoPending !== null || loading}
+                  className="h-9 px-3.5 rounded-lg border border-brand-line dark:border-night-line text-[12.5px] font-bold text-ink-soft dark:text-white/50 hover:text-brand-green dark:hover:text-white hover:border-brand-green dark:hover:border-white/40 transition-colors disabled:opacity-55 disabled:pointer-events-none"
+                >
+                  {demoPending === key ? 'Signing in…' : `${ROLES[key].name} demo`}
+                </button>
+              ))}
+            </div>
+
+            <Link
+              to="/verification-pending"
+              className="inline-block mt-5 text-[12.5px] font-semibold text-ink-faint dark:text-white/30 hover:text-primary transition-colors"
+            >
+              Check NGO verification status
+            </Link>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }

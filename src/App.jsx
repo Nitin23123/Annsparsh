@@ -14,7 +14,6 @@ import RoleSelection from './components/RoleSelection';
 import DonorDashboard from './components/DonorDashboard';
 import NGODashboard from './components/NGODashboard';
 import CreateDonation from './components/CreateDonation';
-import DonationManagement from './components/DonationManagement';
 import Tracking from './components/Tracking';
 import AdminDashboard from './components/AdminDashboard';
 import VerificationPending from './components/VerificationPending';
@@ -66,11 +65,6 @@ function App() {
             <CreateDonation />
           </ProtectedRoute>
         } />
-        <Route path="/donation-requests" element={
-          <ProtectedRoute allowedRoles={['NGO']}>
-            <DonationManagement />
-          </ProtectedRoute>
-        } />
         <Route path="/history" element={
           <ProtectedRoute allowedRoles={['DONOR', 'NGO']}>
             <History />
@@ -82,11 +76,23 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/tracking" element={<Tracking />} />
+        <Route path="/tracking" element={
+          <ProtectedRoute allowedRoles={['DONOR', 'NGO']}>
+            <Tracking />
+          </ProtectedRoute>
+        } />
         <Route path="/verification-pending" element={<VerificationPending />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        } />
         <Route path="/shelters" element={<ShelterFinder />} />
-        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/notifications" element={
+          <ProtectedRoute allowedRoles={['DONOR', 'NGO']}>
+            <Notifications />
+          </ProtectedRoute>
+        } />
         <Route path="/help" element={<HelpCenter />} />
       </Routes>
     </div>

@@ -3,12 +3,23 @@ import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
 
-    if (!userStr) {
+    // A user blob without a token is a stale or hand-edited localStorage entry.
+    if (!userStr || !token) {
         return <Navigate to="/auth" replace />;
     }
 
-    const user = JSON.parse(userStr);
+    let user;
+    try {
+        user = JSON.parse(userStr);
+    } catch {
+        return <Navigate to="/auth" replace />;
+    }
+
+    if (!user?.role) {
+        return <Navigate to="/auth" replace />;
+    }
 
     if (allowedRoles && !allowedRoles.includes(user.role)) {
         // Redirect to their appropriate dashboard if they try to access unauthorized route

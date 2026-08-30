@@ -23,7 +23,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // eslint-plugin-react isn't installed, so JSX usage doesn't mark an
+      // identifier as used. The uppercase pattern covers components; `motion`
+      // is the one lowercase JSX namespace we use (framer-motion).
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]|^motion$' }],
     },
   },
 ])

@@ -1,136 +1,159 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import BrandMark from './BrandMark';
+
+const ROLES = [
+  {
+    id: 'DONOR',
+    title: 'Donor',
+    tagline: 'You have food left over.',
+    details:
+      'Restaurants, households, cloud kitchens and caterers. List surplus in about a minute and confirm the handover with a 4-digit code.',
+    points: ['List in ~60 seconds', 'Choose who collects', 'Tax receipts generated'],
+    canRegister: true,
+  },
+  {
+    id: 'NGO',
+    title: 'NGO / shelter',
+    tagline: 'You can get it to people.',
+    details:
+      'Registered non-profits, orphanages and community shelters. Claim nearby listings and assign the volunteer who collects.',
+    points: ['See nearby surplus live', 'Assign your volunteers', 'Admin-verified before claiming'],
+    canRegister: true,
+  },
+  {
+    id: 'ADMIN',
+    title: 'Administrator',
+    tagline: 'You keep it honest.',
+    details:
+      'AnnSparsh operations. Work the verification queue, audit organisations and watch platform-wide distribution.',
+    points: ['Verification queue', 'Organisation audit', 'Platform metrics'],
+    canRegister: false,
+  },
+];
 
 export default function RoleSelection() {
-    const [selectedRole, setSelectedRole] = useState(null);
-    const navigate = useNavigate();
+  const [selected, setSelected] = useState('DONOR');
+  const navigate = useNavigate();
 
-    const handleContinue = () => {
-        if (selectedRole === 'donor') {
-            navigate('/donor-dashboard');
-        } else if (selectedRole === 'ngo') {
-            navigate('/ngo-dashboard');
-        }
-    };
+  const current = ROLES.find((r) => r.id === selected);
 
-    return (
-        <div className="bg-brand-cream dark:bg-background-dark min-h-screen transition-colors duration-300 font-display">
-            <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-                <div className="layout-container flex h-full grow flex-col">
-                    {/* Navigation */}
-                    <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#115741]/10 px-6 md:px-20 py-4 bg-warm-cream dark:bg-background-dark">
-                        <div className="flex items-center gap-3 text-brand-green dark:text-primary">
-                            <div className="size-8 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-3xl font-bold">eco</span>
-                            </div>
-                            <Link to="/" className="text-xl font-extrabold leading-tight tracking-tight">AnnSparsh</Link>
-                        </div>
-                        <div className="flex flex-1 justify-end gap-6 items-center">
-                            <nav className="hidden md:flex items-center gap-8">
-                                <Link to="/" className="text-brand-green dark:text-gray-200 text-sm font-semibold hover:text-primary transition-colors">Home</Link>
-                                <a className="text-brand-green dark:text-gray-200 text-sm font-semibold hover:text-primary transition-colors" href="#">About</a>
-                                <a className="text-brand-green dark:text-gray-200 text-sm font-semibold hover:text-primary transition-colors" href="#">Contact</a>
-                            </nav>
-                            <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCwYW7qQymo7u9IoMhEOB7qzkIgMLDkBAosZLsRlEy4XrBCunljJcoROphNau7OCtKr2eQmQPOrpEsFedqG13CpkDTYUV0mGtfLdVJ8d0UkCO0mnf3nPzR1eaKtZI5r3BcWslJA131DjPVEI23MJvg1S61gU0jlQUbWbWQXPGWiM6wpaAC-bGbE6FbbUwUkmeDY-nbxn1WkWVOzwS7Ji37-6PBsv7iohPztIsG6XSGAc9bhSDb9cxQtqb3EM_WbPQZkdoMjgHLAYmk")' }}></div>
-                        </div>
-                    </header>
-                    {/* Main Content */}
-                    <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
-                        <div className="max-w-[1000px] w-full flex flex-col items-center">
-                            <div className="text-center mb-12">
-                                <h1 className="text-brand-green dark:text-white tracking-tight text-4xl md:text-5xl font-extrabold leading-tight mb-4">Welcome to AnnSparsh</h1>
-                                <p className="text-brand-green/70 dark:text-gray-400 text-lg md:text-xl font-medium max-w-2xl mx-auto">
-                                    Join our community to bridge the gap between food waste and hunger.
-                                    How would you like to contribute today?
-                                </p>
-                            </div>
-                            {/* Role Selection Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
-                                {/* Donor Card */}
-                                <div
-                                    onClick={() => setSelectedRole('donor')}
-                                    className={`group relative flex flex-col items-center bg-white dark:bg-zinc-900/50 p-8 rounded-xl border-2 transition-all duration-300 cursor-pointer shadow-sm ${selectedRole === 'donor'
-                                        ? 'border-primary shadow-[0_10px_25px_-5px_rgba(242,142,2,0.2)]'
-                                        : 'border-transparent hover:border-primary/50'
-                                        }`}
-                                >
-                                    {selectedRole === 'donor' && (
-                                        <div className="absolute top-4 right-4">
-                                            <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                                        </div>
-                                    )}
-                                    <div className="mb-6 size-24 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                        <span className="material-symbols-outlined text-5xl text-primary font-light" style={{ fontVariationSettings: "'FILL' 1" }}>volunteer_activism</span>
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-brand-green dark:text-white mb-3 text-center">Donate Food</h3>
-                                    <p className="text-brand-green/60 dark:text-gray-400 text-center leading-relaxed mb-4">
-                                        Share surplus food with those in need and reduce waste. Ideal for restaurants, households, and events.
-                                    </p>
-                                    <div className={`mt-auto pt-4 flex items-center text-primary font-bold text-sm uppercase tracking-wider transition-opacity ${selectedRole === 'donor' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                                        {selectedRole === 'donor' ? 'Selected' : 'Select Role'} <span className={`material-symbols-outlined ml-2 text-base`}>{selectedRole === 'donor' ? 'task_alt' : 'arrow_forward'}</span>
-                                    </div>
-                                </div>
-                                {/* NGO Card */}
-                                <div
-                                    onClick={() => setSelectedRole('ngo')}
-                                    className={`group relative flex flex-col items-center bg-white dark:bg-zinc-900/50 p-8 rounded-xl border-2 transition-all duration-300 cursor-pointer shadow-sm ${selectedRole === 'ngo'
-                                        ? 'border-primary shadow-[0_10px_25px_-5px_rgba(242,142,2,0.2)]'
-                                        : 'border-transparent hover:border-primary/50'
-                                        }`}
-                                >
-                                    {selectedRole === 'ngo' && (
-                                        <div className="absolute top-4 right-4">
-                                            <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                                        </div>
-                                    )}
-                                    <div className="mb-6 size-24 bg-brand-green/10 rounded-full flex items-center justify-center group-hover:bg-brand-green/20 transition-colors">
-                                        <span className="material-symbols-outlined text-5xl text-brand-green dark:text-primary font-light" style={{ fontVariationSettings: "'FILL' 1" }}>corporate_fare</span>
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-brand-green dark:text-white mb-3 text-center">Request Food (NGO)</h3>
-                                    <p className="text-brand-green/60 dark:text-gray-400 text-center leading-relaxed mb-4">
-                                        Connect with donors to collect food for your community. For registered non-profits and shelters.
-                                    </p>
-                                    <div className={`mt-auto pt-4 flex items-center text-primary font-bold text-sm uppercase tracking-wider transition-opacity ${selectedRole === 'ngo' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                                        {selectedRole === 'ngo' ? 'Selected' : 'Select Role'} <span className={`material-symbols-outlined ml-2 text-base`}>{selectedRole === 'ngo' ? 'task_alt' : 'arrow_forward'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Footer Action */}
-                            <div className="mt-16 w-full max-w-sm px-4">
-                                <button
-                                    onClick={handleContinue}
-                                    disabled={!selectedRole}
-                                    className="w-full flex items-center justify-center gap-2 overflow-hidden rounded-xl h-14 px-8 bg-primary text-white text-lg font-bold leading-normal tracking-wide shadow-lg hover:bg-primary/90 hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                >
-                                    <span>Continue</span>
-                                    <span className="material-symbols-outlined">trending_flat</span>
-                                </button>
-                                <p className="text-center text-brand-green/40 dark:text-gray-500 text-xs mt-6">
-                                    By continuing, you agree to our Terms of Service and Privacy Policy.
-                                </p>
+  return (
+    <div className="min-h-screen flex flex-col bg-brand-cream dark:bg-night font-display">
+      <header className="shrink-0 h-16 border-b border-brand-line dark:border-night-line">
+        <div className="h-full max-w-[1240px] mx-auto px-5 sm:px-8 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="grid place-items-center size-9 rounded-lg bg-brand-green dark:bg-primary text-white">
+              <BrandMark className="size-[18px]" />
+            </span>
+            <span className="text-[17px] font-extrabold tracking-tightest text-brand-green dark:text-white">
+              Ann<span className="text-primary">Sparsh</span>
+            </span>
+          </Link>
 
-                                <div className="mt-8 text-center border-t border-brand-green/10 pt-6">
-                                    <Link to="/admin" className="inline-flex items-center gap-2 text-sm font-bold text-brand-green/50 hover:text-brand-green transition-colors px-4 py-2 rounded-lg hover:bg-brand-green/5">
-                                        <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
-                                        Login as Administrator
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-                    {/* Bottom Illustration/Background Element */}
-                    <div className="w-full h-32 opacity-10 pointer-events-none overflow-hidden relative">
-                        <div className="absolute inset-0 flex items-end justify-center gap-12 text-brand-green">
-                            <span className="material-symbols-outlined text-9xl">bakery_dining</span>
-                            <span className="material-symbols-outlined text-9xl">restaurant</span>
-                            <span className="material-symbols-outlined text-9xl">lunch_dining</span>
-                            <span className="material-symbols-outlined text-9xl">local_pizza</span>
-                            <span className="material-symbols-outlined text-9xl">shopping_cart_checkout</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+          <div className="flex items-center gap-6">
+            <Link
+              to="/help"
+              className="hidden sm:block text-[13.5px] font-semibold text-ink-soft dark:text-white/50 hover:text-primary transition-colors"
+            >
+              Help
+            </Link>
+            <Link
+              to="/auth"
+              className="text-[13.5px] font-bold text-brand-green dark:text-white hover:text-primary transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
-    );
+      </header>
+
+      <main className="flex-1 w-full max-w-[1240px] mx-auto px-5 sm:px-8 py-14 sm:py-20">
+        <p className="eyebrow text-brand-emerald dark:text-primary">Choose your side of the handover</p>
+        <h1 className="mt-6 max-w-2xl text-[38px] sm:text-[46px] leading-[1.08] text-brand-green dark:text-white">
+          Which one are you?
+        </h1>
+
+        <div className="mt-12 grid gap-px bg-brand-line dark:bg-night-line border-y border-brand-line dark:border-night-line md:grid-cols-3">
+          {ROLES.map((role) => {
+            const isSelected = selected === role.id;
+            return (
+              <button
+                key={role.id}
+                type="button"
+                onClick={() => setSelected(role.id)}
+                aria-pressed={isSelected}
+                className={`text-left p-7 lg:p-8 transition-colors ${
+                  isSelected
+                    ? 'bg-white dark:bg-night-card'
+                    : 'bg-brand-cream dark:bg-night hover:bg-white/60 dark:hover:bg-night-card/60'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`numeric text-[9.5px] font-bold uppercase tracking-[0.16em] ${
+                      isSelected ? 'text-primary' : 'text-ink-faint dark:text-white/30'
+                    }`}
+                  >
+                    {role.id}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`size-2 rounded-full transition-colors ${
+                      isSelected ? 'bg-primary' : 'bg-brand-line dark:bg-night-line'
+                    }`}
+                  />
+                </div>
+
+                <h2 className="mt-6 text-[22px] text-brand-green dark:text-white">{role.title}</h2>
+                <p className="mt-1.5 text-[13.5px] font-semibold text-primary">{role.tagline}</p>
+                <p className="mt-4 text-[13px] leading-relaxed text-ink-soft dark:text-white/45">
+                  {role.details}
+                </p>
+
+                <ul className="mt-6 pt-5 border-t border-brand-line dark:border-night-line space-y-2">
+                  {role.points.map((p) => (
+                    <li
+                      key={p}
+                      className="text-[12.5px] text-ink-soft dark:text-white/40 flex gap-2.5"
+                    >
+                      <span aria-hidden="true" className="text-primary">
+                        &mdash;
+                      </span>
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-4">
+          <button
+            onClick={() => navigate(`/auth?role=${selected}&mode=login`)}
+            className="group inline-flex items-center gap-2.5 h-13 px-7 rounded-xl bg-primary hover:bg-primary-hover text-white text-[15px] font-bold transition-colors"
+          >
+            Continue as {current.title.toLowerCase()}
+            <span className="material-symbols-outlined text-[19px] transition-transform group-hover:translate-x-0.5">
+              arrow_forward
+            </span>
+          </button>
+
+          {current.canRegister && (
+            <button
+              onClick={() => navigate(`/auth?role=${selected}&mode=register`)}
+              className="text-[15px] font-bold text-brand-green dark:text-white border-b border-brand-green/25 dark:border-white/25 hover:border-primary hover:text-primary dark:hover:text-primary pb-1 transition-colors"
+            >
+              Create a new account
+            </button>
+          )}
+        </div>
+
+        <p className="mt-10 text-[12px] text-ink-faint dark:text-white/30">
+          By continuing you agree to the AnnSparsh terms of service and privacy policy.
+        </p>
+      </main>
+    </div>
+  );
 }
