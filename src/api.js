@@ -20,14 +20,24 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Handle 401 responses globally - redirect to login
+// A 401 from /auth/login or /auth/register means "those credentials are wrong",
+// not "your session expired". Redirecting on those reloads the page and destroys
+// the error message before the form can show it.
+const CREDENTIAL_ENDPOINTS = ['/auth/login', '/auth/register'];
+
+// Handle expired sessions globally - redirect to login
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const url = error.config?.url || '';
+        const isCredentialCheck = CREDENTIAL_ENDPOINTS.some((path) => url.includes(path));
+
+        if (error.response?.status === 401 && !isCredentialCheck) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/auth';
+            if (window.location.pathname !== '/auth') {
+                window.location.href = '/auth';
+            }
         }
         return Promise.reject(error);
     }
