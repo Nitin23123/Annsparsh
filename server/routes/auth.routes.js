@@ -18,9 +18,10 @@ router.post('/register', async (req, res) => {
             return res.status(409).json({ error: 'Email already registered' });
         }
         const password_hash = await bcrypt.hash(password, 10);
+        // Only NGOs sit in the verification queue; donors are usable immediately.
         const result = await pool.query(
-            'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, is_verified',
-            [name, email, password_hash, role]
+            'INSERT INTO users (name, email, password_hash, role, is_verified) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, is_verified',
+            [name, email, password_hash, role, role === 'DONOR']
         );
         const user = result.rows[0];
         const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });

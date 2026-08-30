@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const pool = require('../config/db');
-const { authMiddleware, requireRole } = require('../middleware/auth');
+const { authMiddleware, requireRole, requireVerified } = require('../middleware/auth');
+
+const MAX_OTP_ATTEMPTS = 5;
+const OTP_VALID_HOURS = 24;
 
 // NGO: submit a request for a donation
-router.post('/', authMiddleware, requireRole('NGO'), async (req, res) => {
+router.post('/', authMiddleware, requireRole('NGO'), requireVerified, async (req, res) => {
     const { donation_id } = req.body;
     if (!donation_id) return res.status(400).json({ error: 'donation_id is required' });
     try {
@@ -93,6 +96,9 @@ router.put('/:id', authMiddleware, requireRole('DONOR'), async (req, res) => {
         if (!check.rows.length) return res.status(404).json({ error: 'Request not found' });
 
         const request = check.rows[0];
+        if (request.status !== 'PENDING') {
+            return res.status(409).json({ error: `Request is already ${request.status}` });
+        }
         const newStatus = action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
 
         await pool.query(`UPDATE requests SET status = $1 WHERE id = $2`, [newStatus, req.params.id]);
@@ -118,7 +124,7 @@ router.put('/:id', authMiddleware, requireRole('DONOR'), async (req, res) => {
 });
 
 // NGO: assign volunteer to an approved request (generates OTP)
-router.put('/:id/volunteer', authMiddleware, requireRole('NGO'), async (req, res) => {
+router.put('/:id/volunteer', authMiddleware, requireRole('NGO'), requireVerified, async (req, res) => {
     const { volunteer_name, volunteer_phone, vehicle_type, vehicle_number } = req.body;
     if (!volunteer_name || !volunteer_phone || !vehicle_type || !vehicle_number) {
         return res.status(400).json({ error: 'All volunteer fields are required' });
@@ -134,7 +140,9 @@ router.put('/:id/volunteer', authMiddleware, requireRole('NGO'), async (req, res
         const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
 
         const result = await pool.query(
-            `UPDATE requests SET volunteer_name=$1, volunteer_phone=$2, vehicle_type=$3, vehicle_number=$4, otp=$5
+            `UPDATE requests
+             SET volunteer_name=$1, volunteer_phone=$2, vehicle_type=$3, vehicle_number=$4,
+                 otp=$5, otp_issued_at=NOW(), otp_attempts=0
              WHERE id = $6 RETURNING *`,
             [volunteer_name, volunteer_phone, vehicle_type, vehicle_number, otp, req.params.id]
         );
@@ -165,9 +173,36 @@ router.post('/:id/verify-otp', authMiddleware, requireRole('DONOR'), async (req,
         if (!check.rows.length) return res.status(404).json({ error: 'Request not found' });
 
         const request = check.rows[0];
-        if (request.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
 
-        await pool.query(`UPDATE requests SET otp_verified = TRUE WHERE id = $1`, [req.params.id]);
+        if (!request.otp) {
+            return res.status(409).json({ error: 'No volunteer has been assigned to this request yet' });
+        }
+        if (request.otp_attempts >= MAX_OTP_ATTEMPTS) {
+            return res.status(429).json({
+                error: 'Too many incorrect attempts. Ask the NGO to reassign the volunteer for a new code.',
+                code: 'OTP_LOCKED',
+            });
+        }
+        if (request.otp_issued_at && Date.now() - new Date(request.otp_issued_at).getTime() > OTP_VALID_HOURS * 3600000) {
+            return res.status(410).json({
+                error: 'This code has expired. Ask the NGO to reassign the volunteer.',
+                code: 'OTP_EXPIRED',
+            });
+        }
+
+        if (request.otp !== otp) {
+            const bumped = await pool.query(
+                `UPDATE requests SET otp_attempts = otp_attempts + 1 WHERE id = $1 RETURNING otp_attempts`,
+                [req.params.id]
+            );
+            const used = bumped.rows[0].otp_attempts;
+            return res.status(400).json({
+                error: 'Invalid OTP',
+                attempts_remaining: Math.max(0, MAX_OTP_ATTEMPTS - used),
+            });
+        }
+
+        await pool.query(`UPDATE requests SET otp_verified = TRUE, otp_attempts = 0 WHERE id = $1`, [req.params.id]);
         await pool.query(`UPDATE donations SET status = 'COLLECTED' WHERE id = $1`, [request.donation_id]);
 
         const collectedRequest = { ...request, otp_verified: true };

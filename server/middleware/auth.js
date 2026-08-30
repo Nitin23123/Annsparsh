@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const pool = require('../config/db');
 
 function authMiddleware(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
@@ -22,4 +23,23 @@ function requireRole(...roles) {
     };
 }
 
-module.exports = { authMiddleware, requireRole };
+// The JWT only carries id and role, so verification status has to be read fresh —
+// otherwise a token minted before admin approval would keep working, and one
+// minted before a revocation would too.
+async function requireVerified(req, res, next) {
+    try {
+        const { rows } = await pool.query('SELECT is_verified FROM users WHERE id = $1', [req.user.id]);
+        if (!rows.length) return res.status(401).json({ error: 'Account no longer exists' });
+        if (!rows[0].is_verified) {
+            return res.status(403).json({
+                error: 'Your organisation is awaiting admin verification.',
+                code: 'NOT_VERIFIED',
+            });
+        }
+        next();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+module.exports = { authMiddleware, requireRole, requireVerified };

@@ -37,6 +37,10 @@ CREATE TABLE IF NOT EXISTS requests (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Idempotent migrations for existing databases
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS otp_attempts INTEGER DEFAULT 0;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS otp_issued_at TIMESTAMP;
+
 -- Seed admin user (password: password)
 INSERT INTO users (name, email, password_hash, role, is_verified)
 VALUES (
@@ -46,3 +50,24 @@ VALUES (
     'ADMIN',
     TRUE
 ) ON CONFLICT (email) DO NOTHING;
+
+-- Demo accounts backing the one-click demo logins on /auth (password: password123).
+-- The NGO is seeded verified so the demo can claim donations without an admin
+-- first working the verification queue.
+INSERT INTO users (name, email, password_hash, role, is_verified)
+VALUES
+    (
+        'Demo Donor',
+        'donor@example.com',
+        '$2b$10$Zah9NYqA/PktsRyiF.7mxeDOg8qrZvAnnzKV0ddTWELku2Gqwnxgu',
+        'DONOR',
+        TRUE
+    ),
+    (
+        'Demo Relief NGO',
+        'ngo@example.com',
+        '$2b$10$Zah9NYqA/PktsRyiF.7mxeDOg8qrZvAnnzKV0ddTWELku2Gqwnxgu',
+        'NGO',
+        TRUE
+    )
+ON CONFLICT (email) DO NOTHING;
