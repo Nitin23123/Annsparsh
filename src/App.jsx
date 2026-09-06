@@ -22,6 +22,7 @@ import History from './components/History';
 import ShelterFinder from './components/ShelterFinder';
 import Notifications from './components/Notifications';
 import HelpCenter from './components/HelpCenter';
+import Grievances from './components/Grievances';
 import './App.css';
 
 function Home() {
@@ -82,12 +83,15 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/verification-pending" element={<VerificationPending />} />
+        <Route path="/verification" element={<VerificationPending />} />
         <Route path="/profile" element={
           <ProtectedRoute>
             <UserProfile />
           </ProtectedRoute>
         } />
         <Route path="/shelters" element={<ShelterFinder />} />
+        <Route path="/grievances" element={<Grievances />} />
+        <Route path="/report" element={<Grievances />} />
         <Route path="/notifications" element={
           <ProtectedRoute allowedRoles={['DONOR', 'NGO']}>
             <Notifications />

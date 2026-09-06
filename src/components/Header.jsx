@@ -79,6 +79,12 @@ export default function Header() {
           >
             Shelters
           </Link>
+          <Link
+            to="/grievances"
+            className="relative py-1 text-[13.5px] font-semibold text-ink-soft dark:text-white/60 hover:text-brand-green dark:hover:text-white transition-colors after:absolute after:left-0 after:-bottom-px after:h-px after:w-0 after:bg-primary after:transition-[width] after:duration-300 hover:after:w-full"
+          >
+            Report Issue
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -123,7 +129,7 @@ export default function Header() {
       {menuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-brand-cream dark:bg-night px-5 pt-6 pb-10 overflow-y-auto animate-fade-in">
           <nav className="flex flex-col divide-y divide-brand-line dark:divide-night-line">
-            {[...NAV, { href: '/shelters', label: 'Shelters', to: true }, { href: '/help', label: 'Help centre', to: true }].map(
+            {[...NAV, { href: '/shelters', label: 'Shelters', to: true }, { href: '/grievances', label: 'Report Issue', to: true }, { href: '/help', label: 'Help centre', to: true }].map(
               (item) =>
                 item.to ? (
                   <Link

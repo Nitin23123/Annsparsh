@@ -23,12 +23,23 @@ export const RAILS = {
 const STATUS_TONE = {
   AVAILABLE: 'emerald',
   APPROVED: 'emerald',
+  VERIFIED: 'emerald',
   CLAIMED: 'primary',
   PENDING: 'primary',
+  PENDING_REVIEW: 'primary',
+  OTP_VERIFIED: 'forest',
   COLLECTED: 'forest',
   COMPLETED: 'muted',
+  UNVERIFIED: 'muted',
   EXPIRED: 'danger',
   REJECTED: 'danger',
+  RESOLVED: 'emerald',
+  INVESTIGATING: 'primary',
+  DISMISSED: 'muted',
+  CRITICAL: 'danger',
+  HIGH: 'danger',
+  MEDIUM: 'primary',
+  LOW: 'forest',
 };
 
 export const toneOf = (status) => STATUS_TONE[status] || 'muted';

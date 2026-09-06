@@ -4,11 +4,14 @@ const { authMiddleware, requireRole } = require('../middleware/auth');
 
 const adminOnly = [authMiddleware, requireRole('ADMIN')];
 
-// Get all users
+// Get all users with full verification attributes
 router.get('/users', ...adminOnly, async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT id, name, email, role, is_verified, created_at FROM users ORDER BY created_at DESC`
+            `SELECT id, name, email, role, is_verified, phone, phone_verified,
+                    id_type, id_number, id_document_url, verification_status, rejection_reason, created_at
+             FROM users
+             ORDER BY created_at DESC`
         );
         res.json(result.rows);
     } catch (err) {
@@ -16,16 +19,54 @@ router.get('/users', ...adminOnly, async (req, res) => {
     }
 });
 
-// Verify / unverify a user
+// Verify / unverify a user (toggle)
 router.put('/users/:id/verify', ...adminOnly, async (req, res) => {
     const { is_verified } = req.body;
     try {
+        const newStatus = is_verified ? 'VERIFIED' : 'UNVERIFIED';
         const result = await pool.query(
-            `UPDATE users SET is_verified = $1 WHERE id = $2 RETURNING id, name, email, role, is_verified`,
-            [is_verified, req.params.id]
+            `UPDATE users
+             SET is_verified = $1,
+                 verification_status = $2,
+                 rejection_reason = NULL
+             WHERE id = $3
+             RETURNING id, name, email, role, is_verified, verification_status`,
+            [is_verified, newStatus, req.params.id]
         );
         if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
         res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Admin formal verification decision (APPROVE or REJECT with reason)
+router.put('/users/:id/verification-decision', ...adminOnly, async (req, res) => {
+    const { decision, rejection_reason } = req.body;
+    if (!['APPROVE', 'REJECT'].includes(decision)) {
+        return res.status(400).json({ error: 'Decision must be APPROVE or REJECT' });
+    }
+
+    try {
+        const isVerified = decision === 'APPROVE';
+        const verificationStatus = isVerified ? 'VERIFIED' : 'REJECTED';
+        const reason = isVerified ? null : (rejection_reason || 'Verification documents did not meet requirements.');
+
+        const result = await pool.query(
+            `UPDATE users
+             SET is_verified = $1,
+                 verification_status = $2,
+                 rejection_reason = $3
+             WHERE id = $4
+             RETURNING id, name, email, role, is_verified, verification_status, rejection_reason`,
+            [isVerified, verificationStatus, reason, req.params.id]
+        );
+
+        if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+        res.json({
+            success: true,
+            user: result.rows[0]
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -65,20 +106,24 @@ router.get('/requests', ...adminOnly, async (req, res) => {
     }
 });
 
-// Stats summary
+// Stats summary including pending verifications & pending reports
 router.get('/stats', ...adminOnly, async (req, res) => {
     try {
-        const [users, donations, requests, completed] = await Promise.all([
+        const [users, donations, requests, completed, pendingVerifications, pendingReports] = await Promise.all([
             pool.query(`SELECT COUNT(*) FROM users WHERE role != 'ADMIN'`),
             pool.query(`SELECT COUNT(*) FROM donations`),
             pool.query(`SELECT COUNT(*) FROM requests`),
             pool.query(`SELECT COUNT(*) FROM donations WHERE status = 'COMPLETED'`),
+            pool.query(`SELECT COUNT(*) FROM users WHERE is_verified = FALSE AND role != 'ADMIN'`),
+            pool.query(`SELECT COUNT(*) FROM reports WHERE status = 'PENDING'`),
         ]);
         res.json({
             total_users: parseInt(users.rows[0].count),
             total_donations: parseInt(donations.rows[0].count),
             total_requests: parseInt(requests.rows[0].count),
             completed_donations: parseInt(completed.rows[0].count),
+            pending_verifications: parseInt(pendingVerifications.rows[0].count),
+            pending_reports: parseInt(pendingReports.rows[0].count),
         });
     } catch (err) {
         res.status(500).json({ error: err.message });

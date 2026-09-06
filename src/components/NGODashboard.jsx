@@ -214,12 +214,20 @@ export default function NGODashboard() {
       }
     >
       {!isVerified && (
-        <div className="rounded-xl border border-primary/30 bg-primary-soft dark:bg-primary/10 p-5">
-          <p className="text-[13.5px] font-bold text-primary">Awaiting admin verification</p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft dark:text-white/45">
-            You can browse what is available, but claiming is locked until an admin verifies your
-            organisation. This usually takes 24&ndash;48 hours.
-          </p>
+        <div className="rounded-xl border border-primary/30 bg-primary-soft dark:bg-primary/10 p-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="max-w-xl">
+            <p className="text-[13.5px] font-bold text-primary">Identity & Organization Verification Required</p>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft dark:text-white/60">
+              Food claiming is protected. Complete mobile OTP verification and submit your DARPAN / Trust registration details to activate food claim privileges.
+            </p>
+          </div>
+          <Link
+            to="/verification-pending"
+            className="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-primary hover:bg-primary-hover text-white text-[13px] font-bold transition-colors"
+          >
+            Verify Now
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </Link>
         </div>
       )}
 

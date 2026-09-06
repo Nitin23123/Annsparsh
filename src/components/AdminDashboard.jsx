@@ -11,7 +11,9 @@ import {
   Skeleton,
   StatBand,
   StatusPill,
+  EmptyState,
 } from './dashboard/ui';
+import { inputClass, textareaClass } from './dashboard/tokens';
 
 const Th = ({ children }) => (
   <th className="numeric px-5 py-3 text-left text-[9.5px] font-medium uppercase tracking-[0.16em] text-ink-faint dark:text-white/30">
@@ -80,21 +82,36 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [donations, setDonations] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Verification Decision Modal
+  const [rejectModal, setRejectModal] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processingDecision, setProcessingDecision] = useState(false);
+
+  // Grievance Resolution Modal
+  const [reportModal, setReportModal] = useState(null);
+  const [resolutionStatus, setResolutionStatus] = useState('RESOLVED');
+  const [resolutionNotes, setResolutionNotes] = useState('');
+  const [disciplinaryAction, setDisciplinaryAction] = useState('NONE');
+  const [processingReport, setProcessingReport] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, usersRes, donationsRes, requestsRes] = await Promise.all([
+      const [statsRes, usersRes, donationsRes, requestsRes, reportsRes] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/users'),
         api.get('/admin/donations'),
         api.get('/admin/requests'),
+        api.get('/reports'),
       ]);
       setStats(statsRes.data);
       setUsers(usersRes.data);
       setDonations(donationsRes.data);
       setRequests(requestsRes.data);
+      setReports(reportsRes.data);
     } catch {
       toast.error('Failed to load admin data');
     } finally {
@@ -106,15 +123,49 @@ export default function AdminDashboard() {
     fetchAll();
   }, [fetchAll]);
 
-  const handleVerify = async (userId, currentStatus) => {
+  const handleVerifyDecision = async (userId, decision, reason = '') => {
+    setProcessingDecision(true);
     try {
-      await api.put(`/admin/users/${userId}/verify`, { is_verified: !currentStatus });
-      toast.success(`User ${!currentStatus ? 'verified' : 'unverified'}`);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, is_verified: !currentStatus } : u))
+      const { data } = await api.put(`/admin/users/${userId}/verification-decision`, {
+        decision,
+        rejection_reason: reason || undefined,
+      });
+      toast.success(
+        decision === 'APPROVE' ? 'User verified and activated!' : 'User verification rejected.'
       );
-    } catch {
-      toast.error('Failed to update user');
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, ...data.user } : u)));
+      setRejectModal(null);
+      setRejectionReason('');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update verification');
+    } finally {
+      setProcessingDecision(false);
+    }
+  };
+
+  const handleUpdateReport = async (e) => {
+    e.preventDefault();
+    if (!reportModal) return;
+
+    setProcessingReport(true);
+    try {
+      const { data } = await api.put(`/api/reports/${reportModal.id}/status`, {
+        status: resolutionStatus,
+        admin_notes: resolutionNotes,
+        action: disciplinaryAction === 'REVOKE' ? 'REVOKE_VERIFICATION' : undefined,
+      });
+
+      toast.success('Grievance report updated successfully');
+      setReports((prev) => prev.map((r) => (r.id === reportModal.id ? data.report : r)));
+      if (disciplinaryAction === 'REVOKE') {
+        fetchAll(); // refresh user status
+      }
+      setReportModal(null);
+      setResolutionNotes('');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update grievance');
+    } finally {
+      setProcessingReport(false);
     }
   };
 
@@ -122,39 +173,58 @@ export default function AdminDashboard() {
   const ngos = users.filter((u) => u.role === 'NGO').length;
   const activeDonations = donations.filter((d) => d.status === 'AVAILABLE').length;
   const completedDonations = donations.filter((d) => d.status === 'COMPLETED').length;
-  const unverified = users.filter((u) => u.role !== 'ADMIN' && !u.is_verified).length;
+  const pendingVerificationsList = users.filter(
+    (u) => u.role !== 'ADMIN' && (!u.is_verified || u.verification_status === 'PENDING_REVIEW')
+  );
+  const pendingReportsList = reports.filter((r) => r.status === 'PENDING');
 
-  // Counts come from /admin/stats so the tiles stay right even once the
-  // list endpoints are paginated.
   const overviewStats = [
     {
       label: 'Total users',
       value: stats?.total_users ?? users.length,
       sub: `${donors} donors · ${ngos} NGOs`,
     },
-    { label: 'Active donations', value: activeDonations, sub: 'Available now' },
     {
-      label: 'Total donations',
-      value: stats?.total_donations ?? donations.length,
-      sub: `${stats?.total_requests ?? requests.length} requests`,
+      label: 'Pending Vetting',
+      value: stats?.pending_verifications ?? pendingVerificationsList.length,
+      sub: 'Need admin review',
     },
     {
-      label: 'Completed',
+      label: 'Open Grievances',
+      value: stats?.pending_reports ?? pendingReportsList.length,
+      sub: `${reports.length} total tickets`,
+    },
+    {
+      label: 'Completed Meals',
       value: stats?.completed_donations ?? completedDonations,
-      sub: 'Fully delivered',
+      sub: 'Successfully handed over',
     },
   ];
 
   const nav = [
     { key: 'overview', icon: 'grid_view', label: 'Overview' },
-    { key: 'users', icon: 'group', label: 'Users', badge: unverified },
+    {
+      key: 'verifications',
+      icon: 'verified_user',
+      label: 'Verifications',
+      badge: pendingVerificationsList.length,
+    },
+    {
+      key: 'grievances',
+      icon: 'report_problem',
+      label: 'Grievances',
+      badge: pendingReportsList.length,
+    },
+    { key: 'users', icon: 'group', label: 'All Users' },
     { key: 'donations', icon: 'inventory_2', label: 'Donations' },
     { key: 'requests', icon: 'list_alt', label: 'Requests' },
   ].map((t) => ({ ...t, active: activeTab === t.key, onClick: () => setActiveTab(t.key) }));
 
   const titles = {
     overview: 'System overview',
-    users: 'Users',
+    verifications: 'Organization & Identity Verification',
+    grievances: 'Trust & Safety Grievances',
+    users: 'Users Directory',
     donations: 'Donations',
     requests: 'Requests',
   };
@@ -174,97 +244,294 @@ export default function AdminDashboard() {
       })}
       actions={<IconButton icon="refresh" onClick={fetchAll} aria-label="Refresh" />}
     >
+      {/* ── Tab: Overview ── */}
       {activeTab === 'overview' && (
-        <>
+        <div className="space-y-8">
           <StatBand items={overviewStats} loading={loading} />
 
-          <div className="grid gap-5 lg:grid-cols-3">
-            <Panel className="lg:col-span-2 overflow-hidden">
-              <PanelHead title="Recent users">
-                <button
-                  onClick={() => setActiveTab('users')}
-                  className="text-[12.5px] font-bold text-primary hover:text-primary-hover transition-colors"
-                >
+          {/* Quick Action Panels for Pending Vetting & Grievances */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <Panel className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[14px] font-bold text-brand-green dark:text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">
+                    verified_user
+                  </span>
+                  Pending Verifications ({pendingVerificationsList.length})
+                </h3>
+                <Button size="sm" variant="ghost" onClick={() => setActiveTab('verifications')}>
                   View all
-                </button>
-              </PanelHead>
+                </Button>
+              </div>
 
-              {loading ? (
-                <div className="p-5 space-y-3">
-                  {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="h-10" />
+              {pendingVerificationsList.length === 0 ? (
+                <p className="text-[13px] text-ink-faint dark:text-white/40 py-4">
+                  Verification queue is all caught up.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingVerificationsList.slice(0, 4).map((u) => (
+                    <div
+                      key={u.id}
+                      className="p-3 rounded-lg border border-brand-line dark:border-night-line flex items-center justify-between"
+                    >
+                      <UserCell user={u} />
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          setActiveTab('verifications');
+                        }}
+                      >
+                        Review
+                      </Button>
+                    </div>
                   ))}
                 </div>
-              ) : (
-                <Table head={['User', 'Role', 'Verified', 'Joined']}>
-                  {users.slice(0, 5).map((u) => (
-                    <tr key={u.id}>
-                      <Td>
-                        <UserCell user={u} />
-                      </Td>
-                      <Td>
-                        <RoleTag role={u.role} />
-                      </Td>
-                      <Td>
-                        <StatusPill status={u.is_verified ? 'APPROVED' : 'PENDING'} />
-                      </Td>
-                      <Td className="numeric text-ink-faint dark:text-white/30">
-                        {new Date(u.created_at).toLocaleDateString()}
-                      </Td>
-                    </tr>
-                  ))}
-                </Table>
               )}
             </Panel>
 
-            <Panel className="overflow-hidden">
-              <PanelHead title="Recent requests">
-                <button
-                  onClick={() => setActiveTab('requests')}
-                  className="text-[12.5px] font-bold text-primary hover:text-primary-hover transition-colors"
-                >
+            <Panel className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[14px] font-bold text-brand-green dark:text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-red-500 text-[20px]">warning</span>
+                  Open Grievance Tickets ({pendingReportsList.length})
+                </h3>
+                <Button size="sm" variant="ghost" onClick={() => setActiveTab('grievances')}>
                   View all
-                </button>
-              </PanelHead>
+                </Button>
+              </div>
 
-              {loading ? (
-                <div className="p-5 space-y-3">
-                  {[...Array(4)].map((_, i) => (
-                    <Skeleton key={i} className="h-12" />
-                  ))}
-                </div>
-              ) : requests.length === 0 ? (
-                <p className="px-5 py-10 text-center text-[12.5px] text-ink-faint dark:text-white/30">
-                  No requests yet
+              {pendingReportsList.length === 0 ? (
+                <p className="text-[13px] text-ink-faint dark:text-white/40 py-4">
+                  No open misconduct reports.
                 </p>
               ) : (
-                <ul className="divide-y divide-brand-line dark:divide-night-line">
-                  {requests.slice(0, 5).map((r, i) => (
-                    <motion.li
+                <div className="space-y-3">
+                  {pendingReportsList.slice(0, 4).map((r) => (
+                    <div
                       key={r.id}
-                      initial={{ opacity: 0, x: 8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      className="px-5 py-3.5"
+                      className="p-3 rounded-lg border border-brand-line dark:border-night-line flex items-center justify-between"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-[12.5px] font-semibold text-brand-green dark:text-white leading-snug truncate">
-                          {r.ngo_name} &rarr; {r.food_type}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[11px] font-bold text-primary">
+                            #REP-{r.id}
+                          </span>
+                          <StatusPill status={r.severity} />
+                        </div>
+                        <p className="text-[12.5px] font-semibold text-brand-green dark:text-white mt-1">
+                          {r.category.replace('_', ' ')} • Role: {r.reported_role}
                         </p>
-                        <StatusPill status={r.status} />
                       </div>
-                      <p className="numeric mt-1 text-[11.5px] text-ink-faint dark:text-white/30">
-                        {r.donor_name} · {new Date(r.created_at).toLocaleDateString()}
-                      </p>
-                    </motion.li>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setReportModal(r);
+                          setResolutionStatus(r.status);
+                          setResolutionNotes(r.admin_notes || '');
+                          setActiveTab('grievances');
+                        }}
+                      >
+                        Audit
+                      </Button>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </Panel>
           </div>
-        </>
+        </div>
       )}
 
+      {/* ── Tab: Verifications ── */}
+      {activeTab === 'verifications' && (
+        <Panel className="overflow-hidden">
+          <PanelHead title={`Verification Queue (${users.filter((u) => u.role !== 'ADMIN').length})`}>
+            <span className="text-[12px] text-ink-faint dark:text-white/35">
+              {pendingVerificationsList.length} pending review
+            </span>
+          </PanelHead>
+
+          {loading ? (
+            <div className="p-5 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12" />
+              ))}
+            </div>
+          ) : (
+            <Table head={['Entity / User', 'Role', 'Mobile Verified', 'Govt ID / Proof', 'Status', 'Actions']}>
+              {users
+                .filter((u) => u.role !== 'ADMIN')
+                .map((u) => (
+                  <tr key={u.id}>
+                    <Td>
+                      <UserCell user={u} />
+                    </Td>
+                    <Td>
+                      <RoleTag role={u.role} />
+                    </Td>
+                    <Td>
+                      {u.phone ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[12px]">{u.phone}</span>
+                          {u.phone_verified ? (
+                            <span className="text-brand-moss dark:text-brand-emerald text-[14px] material-symbols-outlined" title="Phone OTP Verified">
+                              check_circle
+                            </span>
+                          ) : (
+                            <span className="text-ink-faint text-[14px] material-symbols-outlined" title="Phone Unverified">
+                              schedule
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-ink-faint dark:text-white/30 text-[11px]">No phone</span>
+                      )}
+                    </Td>
+                    <Td>
+                      {u.id_type ? (
+                        <div>
+                          <span className="font-semibold text-brand-green dark:text-white block text-[11.5px]">
+                            {u.id_type}
+                          </span>
+                          <span className="font-mono text-[11px] text-ink-soft dark:text-white/40 block">
+                            {u.id_number}
+                          </span>
+                          {u.id_document_url && (
+                            <span className="inline-flex items-center gap-1 text-[10.5px] text-primary mt-0.5">
+                              <span className="material-symbols-outlined text-[13px]">attachment</span>
+                              {u.id_document_url}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-ink-faint dark:text-white/30 text-[11px]">Not submitted</span>
+                      )}
+                    </Td>
+                    <Td>
+                      <StatusPill status={u.verification_status || (u.is_verified ? 'VERIFIED' : 'UNVERIFIED')} />
+                      {u.rejection_reason && (
+                        <span className="block text-[10px] text-red-500 mt-1 max-w-[140px] truncate" title={u.rejection_reason}>
+                          {u.rejection_reason}
+                        </span>
+                      )}
+                    </Td>
+                    <Td>
+                      <div className="flex items-center gap-2">
+                        {!u.is_verified ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="forest"
+                              onClick={() => handleVerifyDecision(u.id, 'APPROVE')}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => setRejectModal(u)}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleVerifyDecision(u.id, 'REJECT', 'Revoked by admin')}
+                          >
+                            Revoke
+                          </Button>
+                        )}
+                      </div>
+                    </Td>
+                  </tr>
+                ))}
+            </Table>
+          )}
+        </Panel>
+      )}
+
+      {/* ── Tab: Grievances & Reports ── */}
+      {activeTab === 'grievances' && (
+        <Panel className="overflow-hidden">
+          <PanelHead title={`Safety & Misconduct Grievances (${reports.length})`}>
+            <span className="text-[12px] text-ink-faint dark:text-white/35">
+              {pendingReportsList.length} pending action
+            </span>
+          </PanelHead>
+
+          {loading ? (
+            <div className="p-5 space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-12" />
+              ))}
+            </div>
+          ) : reports.length === 0 ? (
+            <div className="p-8">
+              <EmptyState
+                icon="verified"
+                title="No grievances on record"
+                hint="Platform handoffs are clear of reported incidents."
+              />
+            </div>
+          ) : (
+            <Table head={['Ticket', 'Category', 'Reported Entity', 'Severity', 'Statement', 'Status', 'Audit']}>
+              {reports.map((r) => (
+                <tr key={r.id}>
+                  <Td className="font-mono font-bold text-primary">
+                    #REP-{String(r.id).padStart(4, '0')}
+                  </Td>
+                  <Td>
+                    <span className="font-semibold text-brand-green dark:text-white block">
+                      {r.category.replace('_', ' ')}
+                    </span>
+                    <span className="text-[11px] text-ink-faint dark:text-white/30">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="font-semibold text-brand-green dark:text-white block">
+                      {r.reported_name || 'Anonymous'}
+                    </span>
+                    <RoleTag role={r.reported_role} />
+                  </Td>
+                  <Td>
+                    <StatusPill status={r.severity} />
+                  </Td>
+                  <Td className="max-w-xs">
+                    <p className="line-clamp-2 text-[12px]" title={r.description}>
+                      {r.description}
+                    </p>
+                  </Td>
+                  <Td>
+                    <StatusPill status={r.status} />
+                  </Td>
+                  <Td>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => {
+                        setReportModal(r);
+                        setResolutionStatus(r.status === 'PENDING' ? 'INVESTIGATING' : r.status);
+                        setResolutionNotes(r.admin_notes || '');
+                        setDisciplinaryAction('NONE');
+                      }}
+                    >
+                      Audit
+                    </Button>
+                  </Td>
+                </tr>
+              ))}
+            </Table>
+          )}
+        </Panel>
+      )}
+
+      {/* ── Tab: All Users ── */}
       {activeTab === 'users' && (
         <Panel className="overflow-hidden">
           <PanelHead title={`All users (${users.length})`}>
@@ -280,7 +547,7 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <Table head={['User', 'Role', 'Joined', 'Verified', '']}>
+            <Table head={['User', 'Role', 'Mobile', 'Status', 'Actions']}>
               {users.map((u) => (
                 <tr key={u.id}>
                   <Td>
@@ -290,17 +557,17 @@ export default function AdminDashboard() {
                     <RoleTag role={u.role} />
                   </Td>
                   <Td className="numeric text-ink-faint dark:text-white/30">
-                    {new Date(u.created_at).toLocaleDateString()}
+                    {u.phone || '—'} {u.phone_verified && '✓'}
                   </Td>
                   <Td>
-                    <StatusPill status={u.is_verified ? 'APPROVED' : 'PENDING'} />
+                    <StatusPill status={u.is_verified ? 'VERIFIED' : 'PENDING'} />
                   </Td>
                   <Td>
                     {u.role !== 'ADMIN' && (
                       <Button
                         variant={u.is_verified ? 'danger' : 'ghost'}
                         size="sm"
-                        onClick={() => handleVerify(u.id, u.is_verified)}
+                        onClick={() => handleVerifyDecision(u.id, u.is_verified ? 'REJECT' : 'APPROVE')}
                       >
                         {u.is_verified ? 'Unverify' : 'Verify'}
                       </Button>
@@ -313,6 +580,7 @@ export default function AdminDashboard() {
         </Panel>
       )}
 
+      {/* ── Tab: Donations ── */}
       {activeTab === 'donations' && (
         <Panel className="overflow-hidden">
           <PanelHead title={`All donations (${donations.length})`}>
@@ -348,6 +616,7 @@ export default function AdminDashboard() {
         </Panel>
       )}
 
+      {/* ── Tab: Requests ── */}
       {activeTab === 'requests' && (
         <Panel className="overflow-hidden">
           <PanelHead title={`All requests (${requests.length})`} />
@@ -376,6 +645,137 @@ export default function AdminDashboard() {
             </Table>
           )}
         </Panel>
+      )}
+
+      {/* ── Modal: Rejection Reason ── */}
+      {rejectModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4">
+          <div className="bg-white dark:bg-night-card max-w-md w-full rounded-2xl border border-brand-line dark:border-night-line p-6 shadow-2xl">
+            <h3 className="text-[17px] font-bold text-brand-green dark:text-white">
+              Reject Verification for {rejectModal.name}
+            </h3>
+            <p className="mt-1.5 text-[13px] text-ink-soft dark:text-white/50">
+              Provide a clear reason so the user can correct and re-submit valid credentials.
+            </p>
+
+            <div className="mt-4">
+              <label className="block text-[12px] font-semibold text-ink-soft dark:text-white/60 mb-1.5">
+                Rejection Reason / Required Action *
+              </label>
+              <textarea
+                rows={3}
+                required
+                className={textareaClass}
+                placeholder="e.g. DARPAN registration certificate does not match organisation name."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+              />
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="ghost" onClick={() => setRejectModal(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                loading={processingDecision}
+                onClick={() => handleVerifyDecision(rejectModal.id, 'REJECT', rejectionReason)}
+              >
+                Confirm Rejection
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Grievance Resolution ── */}
+      {reportModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4">
+          <div className="bg-white dark:bg-night-card max-w-lg w-full rounded-2xl border border-brand-line dark:border-night-line p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-brand-line dark:border-night-line">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[14px] font-bold text-primary">
+                  #REP-{String(reportModal.id).padStart(4, '0')}
+                </span>
+                <StatusPill status={reportModal.severity} />
+              </div>
+              <IconButton icon="close" onClick={() => setReportModal(null)} aria-label="Close" />
+            </div>
+
+            <div className="mt-4 space-y-4 text-[13px]">
+              <div>
+                <span className="text-ink-faint dark:text-white/40 block text-[11.5px] uppercase font-bold">
+                  Reported Incident
+                </span>
+                <p className="font-semibold text-brand-green dark:text-white text-[14.5px]">
+                  {reportModal.category.replace('_', ' ')} • Against {reportModal.reported_role} ({reportModal.reported_name || 'N/A'})
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-brand-cream/60 dark:bg-night-soft border border-brand-line/60 dark:border-night-line/60">
+                <span className="text-ink-faint dark:text-white/40 block text-[11px] font-semibold uppercase mb-1">
+                  Incident Statement
+                </span>
+                <p className="text-ink dark:text-white/90 whitespace-pre-line leading-relaxed">
+                  {reportModal.description}
+                </p>
+              </div>
+
+              <form onSubmit={handleUpdateReport} className="space-y-4 pt-2">
+                <div>
+                  <label className="block text-[12px] font-semibold text-ink-soft dark:text-white/60 mb-1">
+                    Update Resolution Status
+                  </label>
+                  <select
+                    value={resolutionStatus}
+                    onChange={(e) => setResolutionStatus(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="INVESTIGATING">INVESTIGATING (Under Review)</option>
+                    <option value="RESOLVED">RESOLVED (Action Taken)</option>
+                    <option value="DISMISSED">DISMISSED (Invalid / Unsubstantiated)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[12px] font-semibold text-ink-soft dark:text-white/60 mb-1">
+                    Admin Resolution Notes
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Document investigation outcome, donor contact, or corrective measures taken."
+                    value={resolutionNotes}
+                    onChange={(e) => setResolutionNotes(e.target.value)}
+                    className={textareaClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[12px] font-semibold text-ink-soft dark:text-white/60 mb-1">
+                    Disciplinary Enforcement
+                  </label>
+                  <select
+                    value={disciplinaryAction}
+                    onChange={(e) => setDisciplinaryAction(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="NONE">No disciplinary account action</option>
+                    <option value="REVOKE">Revoke Verification & Suspend Account</option>
+                  </select>
+                </div>
+
+                <div className="pt-3 flex justify-end gap-3">
+                  <Button variant="ghost" type="button" onClick={() => setReportModal(null)}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" type="submit" loading={processingReport}>
+                    Save Resolution
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </DashboardLayout>
   );

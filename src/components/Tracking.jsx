@@ -163,6 +163,17 @@ export default function Tracking() {
               )}
             </div>
           )}
+
+          <div className="mt-6 pt-4 border-t border-brand-line dark:border-night-line flex items-center justify-between text-[12px]">
+            <span className="text-ink-faint dark:text-white/35">Problem with this pickup?</span>
+            <Link
+              to="/grievances"
+              className="font-bold text-red-600 dark:text-red-400 hover:underline inline-flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[14px]">flag</span>
+              Report issue
+            </Link>
+          </div>
         </Panel>
       )}
     </AppPage>

@@ -18,8 +18,8 @@ const COLUMNS = [
     links: [
       { to: '/shelters', label: 'Shelter finder' },
       { to: '/tracking', label: 'Live tracking' },
-      { to: '/help', label: 'Food safety standards' },
-      { to: '/help', label: 'Tax deduction (80G)' },
+      { to: '/grievances', label: 'Report Grievance' },
+      { to: '/verification-pending', label: 'Identity Verification' },
       { to: '/help', label: 'Help centre' },
     ],
   },

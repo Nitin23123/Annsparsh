@@ -41,6 +41,42 @@ CREATE TABLE IF NOT EXISTS requests (
 ALTER TABLE requests ADD COLUMN IF NOT EXISTS otp_attempts INTEGER DEFAULT 0;
 ALTER TABLE requests ADD COLUMN IF NOT EXISTS otp_issued_at TIMESTAMP;
 
+-- User verification migrations
+ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS id_type VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS id_number VARCHAR(100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS id_document_url TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_status VARCHAR(20) DEFAULT 'PENDING';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+
+-- Phone OTPs table for SMS / mobile verification
+CREATE TABLE IF NOT EXISTS phone_otps (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    phone VARCHAR(20) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Grievance and Misconduct Reports table
+CREATE TABLE IF NOT EXISTS reports (
+    id SERIAL PRIMARY KEY,
+    reporter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    reported_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    reported_name VARCHAR(255),
+    reported_role VARCHAR(20) CHECK (reported_role IN ('DONOR', 'NGO', 'VOLUNTEER', 'OTHER')),
+    donation_id INTEGER REFERENCES donations(id) ON DELETE SET NULL,
+    category VARCHAR(50) NOT NULL,
+    severity VARCHAR(20) DEFAULT 'MEDIUM' CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'INVESTIGATING', 'RESOLVED', 'DISMISSED')),
+    admin_notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    resolved_at TIMESTAMP
+);
+
 -- Seed admin user (password: password)
 INSERT INTO users (name, email, password_hash, role, is_verified)
 VALUES (
