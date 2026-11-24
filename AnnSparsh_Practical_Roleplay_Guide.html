@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AnnSparsh — Practical Demonstration & Roleplay Guide</title>
+<title>AnnSparsh — Viva Roleplay & Sequence of Events Demonstration</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
   @page {
     size: A4;
-    margin: 18mm 16mm 18mm 16mm;
+    margin: 16mm 14mm 16mm 14mm;
     @bottom-right {
       content: "Page " counter(page) " of " counter(pages);
       font-family: 'Inter', sans-serif;
@@ -27,8 +27,8 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    line-height: 1.55;
-    font-size: 9.5pt;
+    line-height: 1.5;
+    font-size: 9pt;
     margin: 0;
     padding: 0;
   }
@@ -39,15 +39,15 @@
     flex-direction: column;
     justify-content: space-between;
     min-height: 90vh;
-    padding: 40px 20px 20px 20px;
+    padding: 30px 15px 15px 15px;
     border-bottom: 3px solid #16a34a;
   }
 
   .badge {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 9999px;
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -56,20 +56,21 @@
   .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
   .badge-red   { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
   .badge-blue  { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-purple{ background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
 
   h1.cover-title {
-    font-size: 28pt;
+    font-size: 26pt;
     font-weight: 800;
     line-height: 1.15;
     color: #0f172a;
-    margin: 16px 0 8px 0;
+    margin: 14px 0 6px 0;
   }
 
   .cover-subtitle {
-    font-size: 13pt;
+    font-size: 12pt;
     color: #475569;
     font-weight: 400;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .cover-meta {
@@ -77,8 +78,8 @@
     border: 1px solid #e2e8f0;
     border-left: 5px solid #16a34a;
     border-radius: 8px;
-    padding: 16px 20px;
-    margin: 20px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
   }
 
   .cover-meta table {
@@ -88,7 +89,7 @@
 
   .cover-meta td {
     padding: 4px 0;
-    font-size: 9pt;
+    font-size: 8.5pt;
   }
   .cover-meta td.label {
     width: 130px;
@@ -103,28 +104,28 @@
   h1, h2, h3, h4 {
     color: #0f172a;
     font-weight: 700;
-    margin-top: 18px;
-    margin-bottom: 8px;
+    margin-top: 14px;
+    margin-bottom: 6px;
   }
 
   h2 {
-    font-size: 14pt;
+    font-size: 13pt;
     border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 6px;
-    margin-top: 24px;
+    padding-bottom: 5px;
+    margin-top: 20px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
   h3 {
-    font-size: 11pt;
-    margin-top: 14px;
+    font-size: 10.5pt;
+    margin-top: 10px;
     color: #1e293b;
   }
 
   p {
-    margin: 6px 0;
+    margin: 5px 0;
     color: #334155;
   }
 
@@ -132,17 +133,16 @@
     page-break-before: always;
   }
 
-  /* Table styling */
   table.data-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0 16px 0;
-    font-size: 8.5pt;
+    margin: 10px 0 14px 0;
+    font-size: 8pt;
   }
 
   table.data-table th, table.data-table td {
     border: 1px solid #cbd5e1;
-    padding: 7px 10px;
+    padding: 6px 8px;
     text-align: left;
     vertical-align: top;
   }
@@ -161,17 +161,17 @@
   .dialogue-box {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin: 10px 0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 8px 0;
   }
 
   .dialogue-item {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     display: flex;
     align-items: baseline;
     gap: 8px;
-    font-size: 9pt;
+    font-size: 8.5pt;
   }
   .dialogue-item:last-child {
     margin-bottom: 0;
@@ -179,51 +179,51 @@
 
   .speaker {
     font-weight: 700;
-    font-size: 8pt;
-    padding: 2px 8px;
+    font-size: 7.5pt;
+    padding: 2px 7px;
     border-radius: 4px;
     white-space: nowrap;
     text-transform: uppercase;
   }
-  .speaker-donor     { background: #e0e7ff; color: #3730a3; }
-  .speaker-ngo       { background: #dcfce7; color: #166534; }
-  .speaker-volunteer { background: #fef3c7; color: #92400e; }
-  .speaker-admin     { background: #fee2e2; color: #991b1b; }
-  .speaker-system    { background: #f1f5f9; color: #475569; }
+  .speaker-nitin   { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+  .speaker-vansh   { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .speaker-aditya  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .speaker-aman    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .speaker-suyash  { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .speaker-rishi   { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
 
-  /* Event Box */
   .event-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
   }
 
   .event-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 700;
-    font-size: 9.5pt;
+    font-size: 9pt;
     color: #0f172a;
     border-bottom: 1px dashed #e2e8f0;
-    padding-bottom: 4px;
+    padding-bottom: 3px;
   }
 
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .callout {
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 8.5pt;
-    margin: 6px 0;
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 8pt;
+    margin: 4px 0;
   }
   .callout-screen {
     background: #eff6ff;
@@ -240,7 +240,6 @@
     border-left: 3px solid #f59e0b;
     color: #78350f;
   }
-
   .callout-danger {
     background: #fef2f2;
     border-left: 3px solid #ef4444;
@@ -249,22 +248,22 @@
 
   code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8pt;
+    font-size: 7.5pt;
     background: #f1f5f9;
-    padding: 1px 5px;
-    border-radius: 4px;
+    padding: 1px 4px;
+    border-radius: 3px;
     color: #0f172a;
   }
 
   .diagram {
     background: #0f172a;
     color: #38bdf8;
-    padding: 10px 14px;
+    padding: 8px 12px;
     border-radius: 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 8pt;
-    line-height: 1.4;
-    margin: 10px 0;
+    font-size: 7.5pt;
+    line-height: 1.35;
+    margin: 8px 0;
     overflow-x: hidden;
   }
 </style>
@@ -276,11 +275,11 @@
   <div>
     <div style="display: flex; align-items: center; gap: 8px;">
       <span class="badge badge-green">AnnSparsh Project Demonstration</span>
-      <span class="badge badge-blue">Practical Viva & Roleplay Script</span>
+      <span class="badge badge-blue">Team Roleplay Script & Viva Manual</span>
     </div>
     
-    <h1 class="cover-title">Operational Case Studies & Sequence of Events Guide</h1>
-    <div class="cover-subtitle">End-to-End Simulation of Food Redistribution, OTP Trust Spine, Grievance Escalations, and Edge-Case Governance</div>
+    <h1 class="cover-title">Practical Demonstration & Operational Roleplay Guide</h1>
+    <div class="cover-subtitle">Simulated Field Scenarios: Trust Spine Verification, Food Safety Grievances, Concurrency, and Platform Governance</div>
 
     <div class="cover-meta">
       <table>
@@ -289,269 +288,253 @@
           <td class="val">AnnSparsh — A Touch of Food (Surplus Food Redistribution Platform)</td>
         </tr>
         <tr>
-          <td class="label">Core Architecture:</td>
-          <td class="val">React 19, Node.js + Express, PostgreSQL, Socket.IO Realtime Engine</td>
+          <td class="label">Live Deployment:</td>
+          <td class="val">Frontend: <code>https://annsparsh.vercel.app</code> | Backend: <code>https://annsparsh.onrender.com</code></td>
         </tr>
         <tr>
           <td class="label">Primary Trust Anchor:</td>
           <td class="val">4-Digit Inverted OTP Verification Gate at Pickup Point</td>
         </tr>
         <tr>
-          <td class="label">Focus Scenarios:</td>
-          <td class="val">Standard Pickup, Post-Delivery Grievances, Spoiled Food, Impersonation, No-Show</td>
+          <td class="label">Cast / Team Members:</td>
+          <td class="val"><strong>Nitin, Vansh, Aditya, Aman, Suyash, Rishi</strong></td>
         </tr>
       </table>
     </div>
 
-    <h3>Executive Summary</h3>
-    <p>This document details the practical execution sequences, real-world dialogues, platform actions, and backend database state transitions for AnnSparsh across six operational cases. It is specifically organized for viva examinations and project presentations to demonstrate full lifecycle handling — from successful handshakes to complex dispute resolutions.</p>
+    <h3>Team Member Role Assignment Matrix</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Character</th>
+          <th style="width: 25%;">Operational Persona</th>
+          <th style="width: 25%;">Platform Login</th>
+          <th style="width: 35%;">Key Roleplay Responsibilities</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="speaker speaker-nitin">Nitin</span></td>
+          <td><strong>Food Donor</strong><br>(Grand Palace Caterers)</td>
+          <td><code>donor@annsparsh.com</code><br>pass: <code>Password@123</code></td>
+          <td>Lists food surplus, sets freshness window, reviews claim requests, verifies 4-digit OTP at doorstep.</td>
+        </tr>
+        <tr>
+          <td><span class="speaker speaker-vansh">Vansh</span></td>
+          <td><strong>NGO Coordinator</strong><br>(Asha Relief Foundation)</td>
+          <td><code>ngo@annsparsh.com</code><br>pass: <code>Password@123</code></td>
+          <td>Monitors live feed, claims available food, assigns volunteer driver, generates secret OTP, files grievances.</td>
+        </tr>
+        <tr>
+          <td><span class="speaker speaker-aditya">Aditya</span></td>
+          <td><strong>Field Volunteer Driver</strong><br>(Pickup Rider / Van Driver)</td>
+          <td>Mobile Field Actor / Driver</td>
+          <td>Dispatched to donor kitchen, inspects food quantity & packaging, quotes secret OTP verbally to donor.</td>
+        </tr>
+        <tr>
+          <td><span class="speaker speaker-aman">Aman</span></td>
+          <td><strong>Platform Admin</strong><br>(Trust & Safety Officer)</td>
+          <td><code>admin@annsparsh.com</code><br>pass: <code>Password@123</code></td>
+          <td>Monitors system dashboard, investigates dispute tickets, resolves grievances, enforces account suspensions.</td>
+        </tr>
+        <tr>
+          <td><span class="speaker speaker-suyash">Suyash</span></td>
+          <td><strong>Shelter In-Charge / Competing NGO</strong><br>(Seva Relief Lead)</td>
+          <td><code>ngo@example.com</code><br>pass: <code>Password@123</code></td>
+          <td>Unseals food at community shelter; acts as secondary competing NGO in race condition testing.</td>
+        </tr>
+        <tr>
+          <td><span class="speaker speaker-rishi">Rishi</span></td>
+          <td><strong>Secondary Volunteer / External Actor</strong><br>(Delinquent Volunteer / Hawker)</td>
+          <td>Field Actor / Impostor</td>
+          <td>Plays delinquent volunteer in no-show scenario; plays unauthorized external claimant in security check.</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div style="border-top: 1px solid #cbd5e1; padding-top: 12px; display: flex; justify-content: space-between; font-size: 8pt; color: #64748b;">
+  <div style="border-top: 1px solid #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; font-size: 8pt; color: #64748b;">
     <div><strong>AnnSparsh Engineering Documentation</strong></div>
-    <div>Verified for Project Guide & Viva Evaluation</div>
+    <div>Live URL: https://annsparsh.vercel.app</div>
   </div>
 </div>
 
-<!-- SECTION 1: CAST & DEMO SETUP -->
-<h2>1. Live Demonstration Setup & Cast Allocation</h2>
-<p>To execute a multi-user practical roleplay for your project guide, team members should operate distinct browser windows or devices as shown below:</p>
-
-<table class="data-table">
-  <thead>
-    <tr>
-      <th style="width: 15%;">Actor</th>
-      <th style="width: 20%;">Roleplay Persona</th>
-      <th style="width: 25%;">Screen & Route</th>
-      <th style="width: 22%;">Seeded Login</th>
-      <th style="width: 18%;">Primary Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Donor</strong></td>
-      <td>Banquet / Catering Manager</td>
-      <td>Window 1: <code>/donor-dashboard</code></td>
-      <td><code>donor@example.com</code><br>pass: <code>password123</code></td>
-      <td>Lists surplus, reviews NGOs, verifies OTP at door</td>
-    </tr>
-    <tr>
-      <td><strong>NGO Coordinator</strong></td>
-      <td>Relief Organization Dispatcher</td>
-      <td>Window 2: <code>/ngo-dashboard</code></td>
-      <td><code>ngo@example.com</code><br>pass: <code>password123</code></td>
-      <td>Claims food, assigns field volunteer, receives OTP</td>
-    </tr>
-    <tr>
-      <td><strong>Field Volunteer</strong></td>
-      <td>Pickup Driver / Van Rider</td>
-      <td>Physical Actor / Mobile View</td>
-      <td>Offline (receives OTP via NGO dispatch)</td>
-      <td>Inspects food quantity, quotes 4-digit OTP</td>
-    </tr>
-    <tr>
-      <td><strong>Platform Admin</strong></td>
-      <td>Trust & Safety Officer</td>
-      <td>Window 3: <code>/admin-dashboard</code></td>
-      <td><code>admin@annsparsh.com</code><br>pass: <code>password</code></td>
-      <td>Resolves grievance tickets, manages account strikes</td>
-    </tr>
-  </tbody>
-</table>
-
-<div class="callout callout-alert">
-  <strong>Pro Tip for Live Presentation:</strong> Place Window 1 (Donor) on the left side of the screen and Window 2 (NGO) on the right side. When the Donor submits a listing or approves a request, point out how the opposite window updates in under 200ms without requiring a browser refresh (powered by <code>Socket.IO</code>).
-</div>
-
-<!-- SECTION 2: CASE 1 (GOLDEN PATH) -->
-<h2>2. Case 1: The Golden Flow (Standard Redistribution)</h2>
-<p><strong>Objective:</strong> Prove the core end-to-end redistribution lifecycle under optimal conditions.</p>
+<!-- CASE 1 -->
+<h2>1. Case 1: The Golden Flow (Standard Successful Redistribution)</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-nitin">Nitin</span> (Donor) &bull; <span class="speaker speaker-vansh">Vansh</span> (NGO Lead) &bull; <span class="speaker speaker-aditya">Aditya</span> (Volunteer) &bull; <span class="speaker speaker-aman">Aman</span> (Admin Observer)</p>
 
 <div class="diagram">
-Donor Creates Listing (status: AVAILABLE)
-       │  [Socket: donation:available broadcast to role:NGO]
-       ▼
-NGO Claims Food (status: PENDING)
-       │  [Socket: request:incoming emitted to user:&lt;donor_id&gt;]
-       ▼
-Donor Approves (donation: CLAIMED, request: APPROVED)
-       │
-NGO Assigns Volunteer (4-digit OTP generated &amp; visible ONLY to NGO)
-       │  [Physical arrival &amp; verbal OTP quote]
-       ▼
-Donor Enters OTP &amp; Verifies (donation: COLLECTED, otp_verified: TRUE)
+Nitin Lists 50 Plates of Biryani ──> Vansh (NGO) Claims via Realtime ──> Nitin Approves
+      │
+Vansh Assigns Aditya (Van MH-12-AB-9999) ──> Secret OTP 7342 Generated (NGO view only)
+      │
+Aditya Arrives at Kitchen ──> Quotes "7342" ──> Nitin Enters OTP on Screen ──> Status: COLLECTED
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 1: Surplus Listed on Platform</span>
-    <span class="badge badge-green">State: AVAILABLE</span>
+    <span>Stage 1: Nitin Publishes Fresh Surplus</span>
+    <span class="badge badge-green">AVAILABLE</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Our dinner banquet just concluded. We have 50 untouched portions of vegetable biryani that must be consumed within 4 hours. Let me put this on AnnSparsh."</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Our dinner banquet at Grand Palace just ended. We have 50 untouched portions of vegetable biryani that must be consumed within 4 hours. Opening AnnSparsh to list it."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action:</strong> Donor clicks <em>"Donate Food"</em> on <code>/create-donation</code>. Enters Food: <code>Veg Biryani</code>, Qty: <code>50 plates</code>, Best Before: <code>4 hours</code>.
+      <strong>Screen Action:</strong> Nitin goes to <code>/create-donation</code>, inputs Food: <code>[cooked] Veg Biryani</code>, Qty: <code>50 plates</code>, Best Before: <code>4 hours</code>, Address: <code>Grand Palace, Station Road</code>.
     </div>
     <div class="callout callout-system">
-      <strong>DB & Sockets:</strong> <code>INSERT INTO donations</code> (status: <code>AVAILABLE</code>). Emits <code>donation:available</code> to <code>role:NGO</code>.
+      <strong>Backend & Sockets:</strong> <code>POST /api/donations</code> inserts record. Emits <code>donation:available</code> to room <code>role:NGO</code>.
     </div>
   </div>
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 2: NGO Requests & Donor Approves</span>
-    <span class="badge badge-amber">State: CLAIMED</span>
+    <span>Stage 2: Vansh Claims & Nitin Approves in Real-Time</span>
+    <span class="badge badge-amber">CLAIMED</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-ngo">NGO</span>
-      <span>"A 50-plate donation just appeared in our sector. Requesting immediate pickup for our night shelter beneficiaries."</span>
+      <span class="speaker speaker-vansh">Vansh</span>
+      <span>"A 50-plate donation from Grand Palace just popped up on my dashboard without refreshing! Clicking 'Request Food' for our community shelter."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Care Relief NGO has submitted a claim. Their verification badge is active. Approved!"</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"I see Asha Relief Foundation's verified request on my screen. Approving immediately!"</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action:</strong> NGO clicks <em>"Request Food"</em>. Donor sees incoming request toast live, clicks <em>"Approve"</em>.
+      <strong>Screen Action:</strong> Vansh clicks <em>Request Food</em> on <code>/ngo-dashboard</code>. Nitin's screen rings with an incoming request toast and clicks <em>Approve</em>.
     </div>
     <div class="callout callout-system">
-      <strong>DB & Sockets:</strong> Request status becomes <code>APPROVED</code>; donation becomes <code>CLAIMED</code>. Alternate pending requests auto-rejected.
+      <strong>DB State:</strong> Request &rarr; <code>APPROVED</code>; Donation &rarr; <code>CLAIMED</code>. Alternate requests auto-rejected.
     </div>
   </div>
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 3: Volunteer Assigned & Inverted OTP Generated</span>
+    <span>Stage 3: Vansh Dispatches Aditya & Inverted OTP is Created</span>
     <span class="badge badge-blue">OTP Generated</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-ngo">NGO</span>
-      <span>"Assigning volunteer Ramesh Kumar with pickup van MH-12-AB-1234. System generated pickup OTP: <strong>7342</strong>. Calling Ramesh now."</span>
+      <span class="speaker speaker-vansh">Vansh</span>
+      <span>"Assigning volunteer driver Aditya with delivery van MH-12-AB-9999. The system just generated 4-digit pickup code: <strong>7342</strong>. Calling Aditya."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-volunteer">Volunteer</span>
-      <span>"Understood. Moving toward Grand Pearl Banquet. Secret OTP is 7342."</span>
+      <span class="speaker speaker-aditya">Aditya</span>
+      <span>"Got it, Vansh! Heading to Grand Palace now. Secret pickup OTP is 7342."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action:</strong> NGO fills volunteer details in modal. An OTP card appears <strong>only on the NGO dashboard</strong> with a green toast.
+      <strong>Screen Action:</strong> Vansh fills the volunteer modal. The OTP card appears <strong>only on Vansh's screen</strong> with a green alert toast.
     </div>
     <div class="callout callout-system">
-      <strong>Security Architecture:</strong> Server writes 4 digits to <code>requests.otp</code>. Emits strictly to <code>user:&lt;ngo_id&gt;</code> room. The donor cannot see this OTP.
+      <strong>Security Lock:</strong> OTP emitted strictly to <code>user:vansh</code>. Nitin cannot see this OTP on his screen.
     </div>
   </div>
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 4: Doorstep Handoff & OTP Verification</span>
-    <span class="badge badge-green">State: COLLECTED</span>
+    <span>Stage 4: Aditya Arrives, Doorstep Handover & OTP Verification</span>
+    <span class="badge badge-green">COLLECTED</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-volunteer">Volunteer</span>
-      <span>"Namaste, I am Ramesh from Care Relief. Here to collect the 50 plates of Biryani. My pickup OTP is <strong>7342</strong>."</span>
+      <span class="speaker speaker-aditya">Aditya</span>
+      <span>"Namaste Nitin ji! I am Aditya from Asha Relief. I am here to collect the 50 plates of Biryani. My pickup OTP is <strong>7342</strong>."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Checking food containers. Looks fresh and packaged properly. Entering 7342 into my AnnSparsh screen... Verified!"</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Checking food containers — hot and sealed properly. Entering 7342 into my verification box... Code Verified! Safe travels, Aditya."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action:</strong> Donor enters <code>7342</code> into the verification input and presses <em>"Confirm OTP"</em>.
+      <strong>Screen Action:</strong> Nitin types <code>7342</code> into the input on <code>/donor-dashboard</code> and clicks <em>Confirm OTP</em>. Both Nitin and Vansh's screens instantly show green badges.
     </div>
     <div class="callout callout-system">
-      <strong>DB & Sockets:</strong> <code>requests.otp_verified = TRUE</code>, donation status: <code>COLLECTED</code>. Emits <code>pickup:collected</code> to both sides simultaneously.
+      <strong>DB State:</strong> <code>requests.otp_verified = TRUE</code>, donation &rarr; <code>COLLECTED</code>. Emits <code>pickup:collected</code> to both rooms.
     </div>
   </div>
 </div>
 
-<!-- SECTION 3: CASE 2 (GRIEVANCE POST DELIVERY) -->
+<!-- CASE 2 -->
 <div class="page-break"></div>
-<h2>3. Case 2: Order Delivered, But Grievance Filed (Post-Delivery Food Quality Dispute)</h2>
-<p><strong>Objective:</strong> Answer the project guide's critical question: <em>"What happens when an order is marked delivered, but the food is spoiled or compromised upon arrival at the shelter?"</em></p>
+<h2>2. Case 2: Post-Delivery Food Quality Dispute (Grievance Escalation)</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-aditya">Aditya</span> (Driver) &bull; <span class="speaker speaker-suyash">Suyash</span> (Shelter Lead) &bull; <span class="speaker speaker-vansh">Vansh</span> (NGO Lead) &bull; <span class="speaker speaker-aman">Aman</span> (Admin) &bull; <span class="speaker speaker-nitin">Nitin</span> (Donor)</p>
+<p><em>(Addresses your guide's core question: "Order is delivered via OTP, but grievances are discovered later.")</em></p>
 
 <div class="diagram">
-Pickup Completed via OTP (status: COLLECTED)
-       │  [Containers transported to Community Shelter]
-       ▼
-Food Inspected at Shelter (Containers opened -> sour smell / spoilage detected)
-       │  [NGO prevents food distribution to beneficiaries]
-       ▼
-NGO Files Grievance on Portal (/grievances -> Ticket REP-00042)
-       │  [Socket: report:created emitted to role:ADMIN]
-       ▼
-Admin Reviews Audit Log (best_before window vs pickup timestamp)
-       │  [Admin investigates &amp; applies sanction]
-       ▼
-Admin Resolves Dispute (Donor issued warning or Account Revocation via REVOKE_VERIFICATION)
+Aditya Delivers Containers to Shelter ──> Suyash Unseals Lids ──> Discovers Sour Smell / Spoilage
+      │  [Food declared hazardous for human consumption &amp; safely discarded]
+      ▼
+Vansh Files High-Severity Grievance (/grievances -> Ticket REP-00042)
+      │  [Aman receives instant Admin dashboard notification]
+      ▼
+Aman Reviews Cold-Chain Timestamps (Handover took only 35 mins -> Food spoiled before handover)
+      │
+Aman Updates Ticket to RESOLVED &amp; Invokes REVOKE_VERIFICATION on Nitin's Account
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 1: The Incident (Post-Pickup Discovery)</span>
+    <span>Stage 1: Inspection at Community Shelter</span>
     <span class="badge badge-red">Food Safety Hazard</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-volunteer">Volunteer</span>
-      <span>"Handover was completed smoothly with OTP 7342 and containers arrived at the shelter 35 minutes later."</span>
+      <span class="speaker speaker-aditya">Aditya</span>
+      <span>"Suyash, I have brought the 50 portions of biryani collected from Nitin's kitchen 35 minutes ago."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-ngo">NGO Coordinator</span>
-      <span>"Stop! Do not distribute these containers. As soon as we unsealed the lids, the biryani is curdled, sour, and smelling rancid. The donor had left this near hot kitchen boilers before pickup."</span>
+      <span class="speaker speaker-suyash">Suyash</span>
+      <span>"Hold on, Aditya! As soon as we unsealed the thermal boxes, the food smells curdled and sour. It was clearly stored near hot exhaust boilers before handover."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-ngo">NGO Coordinator</span>
-      <span>"Serving this could cause mass food poisoning. We must dispose of this batch immediately and file a formal grievance on AnnSparsh with photo evidence."</span>
+      <span class="speaker speaker-suyash">Suyash</span>
+      <span>"We cannot feed this to elderly people and children at this shelter. It would cause acute food poisoning. We must dispose of this batch and alert Vansh immediately."</span>
     </div>
-  </div>
-  <div class="callout callout-danger">
-    <strong>Key Principle:</strong> OTP verification certifies that <em>custody</em> was transferred, but it does NOT absolve the donor of food safety liability under FSSAI and AnnSparsh terms.
   </div>
 </div>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 2: NGO Submits Grievance Report</span>
+    <span>Stage 2: Vansh Files Formal Grievance Report</span>
     <span class="badge badge-amber">Ticket: REP-00042</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-ngo">NGO Coordinator</span>
-      <span>"Opening Trust & Safety portal. Filing report against Donor for Donation #108. Category: Food Quality / Safety. Severity: HIGH."</span>
+      <span class="speaker speaker-vansh">Vansh</span>
+      <span>"Opening AnnSparsh Trust & Safety portal at <code>/grievances</code>. Filing an incident report against Nitin's establishment for Donation #108. Category: Food Quality / Safety. Severity: HIGH."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action on <code>/grievances</code>:</strong>
+      <strong>Vansh's Form Submission:</strong>
       <ul>
         <li>Reported Role: <code>Food Donor</code></li>
         <li>Category: <code>Food Quality / Safety</code></li>
-        <li>Severity: <code>HIGH</code></li>
+        <li>Severity: <code>HIGH</code> (Health Risk)</li>
         <li>Donation ID: <code>108</code></li>
-        <li>Description: <em>"50 servings of biryani spoiled prior to collection. Severe sour odor upon opening containers at shelter. Safe disposal conducted under supervisor."</em></li>
+        <li>Description: <em>"50 servings spoiled prior to pickup. Sour odor upon opening at shelter. Batch disposed of under supervisor Suyash."</em></li>
       </ul>
     </div>
     <div class="callout callout-system">
       <strong>Backend Execution:</strong>
       <ul>
         <li>API: <code>POST /api/reports</code></li>
-        <li>Database writes row in <code>reports</code> table with <code>status = 'PENDING'</code>.</li>
-        <li>Generates ticket ID <code>REP-00042</code>.</li>
-        <li>Socket broadcasts <code>report:created</code> to all connected Admins.</li>
+        <li>Inserts record into <code>reports</code> table (status: <code>PENDING</code>).</li>
+        <li>Auto-generates ticket: <code>REP-00042</code>.</li>
+        <li>Socket emits <code>report:created</code> to Aman's admin console.</li>
       </ul>
     </div>
   </div>
@@ -559,21 +542,21 @@ Admin Resolves Dispute (Donor issued warning or Account Revocation via REVOKE_VE
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Stage 3: Admin Review & Investigation</span>
+    <span>Stage 3: Aman Investigates Audit Log & Timestamps</span>
     <span class="badge badge-blue">State: INVESTIGATING</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-admin">Admin</span>
-      <span>"Incoming High-Severity Report REP-00042 on Donation #108. Let's inspect the timeline and audit logs."</span>
+      <span class="speaker speaker-aman">Aman</span>
+      <span>"Alert on Admin Console: High-severity ticket REP-00042 on Grand Palace Caterers. Let's inspect the digital audit trail."</span>
     </div>
   </div>
   <div class="callout callout-screen">
-    <strong>Admin Audit Checklist:</strong>
+    <strong>Aman's Audit Inspection:</strong>
     <ol>
-      <li><strong>Listing Time:</strong> 11:30 PM (Donor claimed 4 hours freshness).</li>
-      <li><strong>Collection Time:</strong> 12:15 AM (Transit took only 45 minutes).</li>
-      <li><strong>Deduction:</strong> The food could not spoil within 45 minutes in winter temperatures unless it was already spoiled at 11:30 PM. The donor violated the hygiene declaration.</li>
+      <li><strong>Listing Time:</strong> 11:30 PM (Nitin certified 4 hours freshness).</li>
+      <li><strong>Collection Time:</strong> 12:05 AM (Transit took only 35 minutes).</li>
+      <li><strong>Audit Conclusion:</strong> Cooked food cannot spoil in 35 minutes under ambient night temperatures. Spoilage occurred inside the donor kitchen prior to handoff. Nitin violated safety hygiene guidelines.</li>
     </ol>
   </div>
 </div>
@@ -581,203 +564,218 @@ Admin Resolves Dispute (Donor issued warning or Account Revocation via REVOKE_VE
 <div class="event-card">
   <div class="event-card-header">
     <span>Stage 4: Administrative Resolution & Sanctions</span>
-    <span class="badge badge-green">State: RESOLVED</span>
+    <span class="badge badge-green">RESOLVED & SUSPENDED</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-admin">Admin</span>
-      <span>"Marking ticket RESOLVED. Adding admin note: 'Cold-chain audit shows food spoiled prior to pickup. Formal strike issued to donor.' Executing account suspension."</span>
+      <span class="speaker speaker-aman">Aman</span>
+      <span>"Marking ticket REP-00042 as RESOLVED with audit findings. Executing disciplinary action: <strong>REVOKE_VERIFICATION</strong> on Nitin's account."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"I just received an administrative notification: 'Account suspended following grievance review (Report #42)'. Our listing privileges are locked until re-audit."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>UI Action:</strong> Admin selects <em>"REVOKE_VERIFICATION"</em> from action menu and submits resolution notes.
+      <strong>Screen Action:</strong> Aman enters admin notes and clicks <em>Submit Resolution</em> on <code>/admin</code>.
     </div>
     <div class="callout callout-system">
-      <strong>Database Update:</strong>
-      <code>UPDATE users SET is_verified = FALSE, verification_status = 'REJECTED', rejection_reason = 'Account suspended following grievance review (Report #42)' WHERE id = &lt;donor_id&gt;;</code>
-      <br>The donor cannot create new listings until re-verified.
+      <strong>DB Update:</strong>
+      <code>UPDATE users SET is_verified = FALSE, verification_status = 'REJECTED' WHERE email = 'donor@annsparsh.com';</code>
+      Nitin cannot list food until audited.
     </div>
   </div>
 </div>
 
-<!-- SECTION 4: CASE 3 (DOORSTEP MISMATCH) -->
+<!-- CASE 3 -->
 <div class="page-break"></div>
-<h2>4. Case 3: Doorstep Mismatch (Pre-OTP Inspection Rejection)</h2>
-<p><strong>Objective:</strong> Demonstrate why physical inspection MUST precede OTP entry.</p>
+<h2>3. Case 3: Doorstep Quantity Mismatch (Pre-OTP Rejection)</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-nitin">Nitin</span> (Donor) &bull; <span class="speaker speaker-aditya">Aditya</span> (Volunteer Driver) &bull; <span class="speaker speaker-vansh">Vansh</span> (NGO Lead)</p>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Scenario: Listed 50 meals, but only 4 are presented</span>
+    <span>Scenario: Nitin lists 50 meals, but only 4 packets exist</span>
     <span class="badge badge-amber">Pre-Handoff Discrepancy</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-volunteer">Volunteer</span>
-      <span>"Hello, I am here for the 50 meals of Dal & Rice."</span>
+      <span class="speaker speaker-aditya">Aditya</span>
+      <span>"Hello Nitin ji, I am Aditya from Asha Relief. I'm here with our cargo van to collect the 50 meals of Dal Rice."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Sorry, our staff took most of it home. We only have 4 small packets left. Please give me your OTP so I can close the order."</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Sorry Aditya, our wedding kitchen staff took most of it. We only have 4 small packets left. Please give me your 4-digit OTP so I can close the order on the portal."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-volunteer">Volunteer</span>
-      <span>"No. AnnSparsh policy strictly forbids sharing the OTP if the physical quantity does not match the listing. We cannot mobilize a transport van for 4 packets. I am refusing pickup."</span>
+      <span class="speaker speaker-aditya">Aditya</span>
+      <span>"No, Nitin ji. AnnSparsh policy strictly forbids quoting the OTP if the physical quantity fails inspection. We mobilized a full cargo van based on 50 servings. I am refusing pickup and calling Vansh."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-vansh">Vansh</span>
+      <span>"Correct decision, Aditya. Withdrawing the request from our dashboard right now. We cannot waste logistics capacity on false listings."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>Outcome:</strong>
+      <strong>Operational Outcome:</strong>
       <ul>
-        <li>OTP is <strong>never entered</strong> by the donor.</li>
-        <li>NGO clicks <em>"Withdraw / Cancel Request"</em> on <code>/ngo-dashboard</code>.</li>
-        <li>NGO files report: Category <code>FRAUD & MISREPRESENTATION</code>.</li>
+        <li>OTP is <strong>never entered</strong> by Nitin.</li>
+        <li>Vansh clicks <em>Withdraw Request</em> on <code>/ngo-dashboard</code>.</li>
+        <li>Vansh logs a <code>FRAUD & MISREPRESENTATION</code> report.</li>
       </ul>
     </div>
     <div class="callout callout-system">
-      <strong>Database Status:</strong>
+      <strong>System Integrity:</strong>
       <ul>
-        <li>Donation never transitions to <code>COLLECTED</code>.</li>
-        <li><code>otp_verified</code> remains <code>FALSE</code>.</li>
-        <li>Donor cannot falsely inflate CSR impact or meal statistics.</li>
+        <li>Donation never flips to <code>COLLECTED</code>.</li>
+        <li><code>otp_verified</code> stays <code>FALSE</code>.</li>
+        <li>Prevents unscrupulous donors from claiming false CSR tax credits.</li>
       </ul>
     </div>
   </div>
 </div>
 
-<!-- SECTION 5: CASE 4 (NO-SHOW & EXPIRY) -->
-<h2>5. Case 4: Volunteer No-Show & Critical Expiry Risk</h2>
-<p><strong>Objective:</strong> Demonstrate system resilience when assigned transport fails to arrive.</p>
+<!-- CASE 4 -->
+<h2>4. Case 4: Volunteer No-Show & Urgent Expiry Clock</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-nitin">Nitin</span> (Donor) &bull; <span class="speaker speaker-rishi">Rishi</span> (Delinquent Driver) &bull; <span class="speaker speaker-aman">Aman</span> (Admin) &bull; <span class="speaker speaker-vansh">Vansh</span> (Alternative NGO)</p>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Scenario: Expiry clock ticking, assigned volunteer unreachable</span>
+    <span>Scenario: 45 minutes until spoilage, assigned driver unreachable</span>
     <span class="badge badge-red">Urgent Expiry Threat</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"The NGO assigned a volunteer 90 minutes ago. The food only has 45 minutes left before it spoils. The volunteer's phone is switched off!"</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Rishi was assigned as pickup driver 2 hours ago. The food only has 45 minutes of shelf life remaining, and Rishi's phone is switched off! This food will go to waste!"</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Filing an urgent 'NO_SHOW' grievance and contacting platform admin."</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Filing an emergency 'NO_SHOW' grievance on AnnSparsh with CRITICAL severity."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-admin">Admin</span>
-      <span>"Received emergency No-Show ticket. Overriding stalled request #89. Resetting donation back to AVAILABLE for immediate re-claim by nearby NGOs."</span>
+      <span class="speaker speaker-aman">Aman</span>
+      <span>"Admin here. Emergency alert received on stalled donation #92. Overriding stuck request. Resetting donation back to AVAILABLE for immediate re-claim by nearby NGOs."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-vansh">Vansh</span>
+      <span>"Asha Relief just received the emergency broadcast! Our standby driver Aditya is 5 minutes away from Grand Palace. Claiming now!"</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>Platform Mechanism:</strong>
+      <strong>Actions Taken:</strong>
       <ul>
-        <li>Donor files <code>NO_SHOW</code> grievance with <code>CRITICAL</code> severity.</li>
-        <li>Admin dashboard triggers rapid reset.</li>
-        <li>Nearby registered NGOs receive an instant high-priority socket ping.</li>
+        <li>Nitin files <code>NO_SHOW</code> grievance.</li>
+        <li>Aman executes emergency reset on <code>/admin</code>.</li>
+        <li>Vansh quick-claims and sends Aditya.</li>
       </ul>
     </div>
     <div class="callout callout-system">
       <strong>System State Changes:</strong>
       <ul>
-        <li>Delinquent request status updated to <code>REJECTED</code>.</li>
-        <li>Donation status reset: <code>AVAILABLE</code>.</li>
-        <li>The no-show volunteer's phone record receives an administrative demerit.</li>
+        <li>Rishi's request &rarr; <code>REJECTED</code> with administrative strike.</li>
+        <li>Donation status reset to <code>AVAILABLE</code>.</li>
+        <li>Food rescued and distributed within 25 minutes.</li>
       </ul>
     </div>
   </div>
 </div>
 
-<!-- SECTION 6: CASE 5 (SECURITY & OTP MISMATCH) -->
+<!-- CASE 5 -->
 <div class="page-break"></div>
-<h2>6. Case 5: OTP Mismatch & Impersonation / Fraud Attempt</h2>
-<p><strong>Objective:</strong> Prove how the inverted OTP prevents food theft and impersonation.</p>
+<h2>5. Case 5: OTP Mismatch & Impersonation / Fraud Attempt</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-nitin">Nitin</span> (Alert Donor) &bull; <span class="speaker speaker-rishi">Rishi</span> (Suspicious External Claimant) &bull; <span class="speaker speaker-aman">Aman</span> (Admin)</p>
 
 <div class="event-card">
   <div class="event-card-header">
-    <span>Scenario: Unauthorized stranger attempts to claim food</span>
-    <span class="badge badge-red">Security Threat Blocked</span>
+    <span>Scenario: Unauthorized stranger attempts to steal surplus food</span>
+    <span class="badge badge-red">Theft Blocked by Inverted OTP</span>
   </div>
   <div class="dialogue-box">
     <div class="dialogue-item">
-      <span class="speaker speaker-system">Stranger</span>
-      <span>"Hello, I am here with a bike to collect the free surplus food."</span>
+      <span class="speaker speaker-rishi">Rishi</span>
+      <span>"Namaste, I have a tempo outside. I'm here to collect the free surplus food from AnnSparsh."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Which NGO are you registered with, and what is your 4-digit pickup code?"</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Which NGO organization sent you, and what is your 4-digit pickup authentication code?"</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-system">Stranger</span>
-      <span>"Uh... I think the code is 1234. Or maybe 9999."</span>
+      <span class="speaker speaker-rishi">Rishi</span>
+      <span>"Uh... I think my supervisor said the code is 1234. Or 9999."</span>
     </div>
     <div class="dialogue-item">
-      <span class="speaker speaker-donor">Donor</span>
-      <span>"Entering 1234... System says: <strong>'Invalid OTP'</strong>. Handover denied. Please leave the premises."</span>
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"Entering 1234 on my screen... System displays: <strong>'Invalid OTP. 4 attempts remaining.'</strong> Handover denied! You are not authorized. Leave our premises."</span>
     </div>
   </div>
   <div class="grid-2">
     <div class="callout callout-screen">
-      <strong>Security Safeguard:</strong>
+      <strong>Security Defense:</strong>
       <ul>
-        <li>API returns <code>400 Bad Request: "Invalid OTP"</code>.</li>
-        <li><code>otp_attempts</code> incremented in DB.</li>
-        <li>After 3 failed attempts, donor UI enforces a 5-minute lockout to block brute-force guessing.</li>
+        <li>API responds with <code>400 Bad Request: "Invalid OTP"</code>.</li>
+        <li>Database increments <code>otp_attempts</code>.</li>
+        <li>After 5 failed attempts, the input locks completely (<code>OTP_LOCKED</code>).</li>
       </ul>
     </div>
     <div class="callout callout-system">
       <strong>Why Inverted OTP Matters:</strong>
-      In standard delivery apps (Uber, Swiggy), the <em>customer</em> gets the OTP. In AnnSparsh, the <strong>NGO</strong> holds the OTP and the <strong>Donor</strong> verifies it. This guarantees that only the NGO's dispatched representative can authenticate the pickup.
+      In ordinary delivery apps, the <em>customer</em> holds the OTP. In AnnSparsh, the <strong>NGO</strong> holds the OTP and the <strong>Donor</strong> verifies it. An unauthorized third-party cannot guess or forge the code.
     </div>
   </div>
 </div>
 
-<!-- SECTION 7: CASE 6 (RACE CONDITION) -->
-<h2>7. Case 6: High-Demand Race Condition (Multiple Claims)</h2>
-<p><strong>Objective:</strong> Concurrency safety when several NGOs claim the same surplus listing.</p>
+<!-- CASE 6 -->
+<h2>6. Case 6: High-Demand Race Condition (Concurrent NGO Claims)</h2>
+<p><strong>Starring:</strong> <span class="speaker speaker-nitin">Nitin</span> (Donor) &bull; <span class="speaker speaker-vansh">Vansh</span> (NGO A: Asha Relief) &bull; <span class="speaker speaker-suyash">Suyash</span> (NGO B: Seva Kitchen)</p>
 
-<div class="dialogue-box">
-  <div class="dialogue-item">
-    <span class="speaker speaker-system">Timeline</span>
-    <span>10:00:00 AM — Hotel lists 100 meals. Status: <code>AVAILABLE</code></span>
+<div class="event-card">
+  <div class="event-card-header">
+    <span>Scenario: 100 surplus meals requested by two NGOs within 30 seconds</span>
+    <span class="badge badge-blue">Atomic Concurrency Resolution</span>
   </div>
-  <div class="dialogue-item">
-    <span class="speaker speaker-ngo">NGO A (Feed Pune)</span>
-    <span>10:01:15 AM — Clicks "Request Food" (Distance: 3 km away).</span>
+  <div class="dialogue-box">
+    <div class="dialogue-item">
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"10:00 AM — Just listed 100 meals from an international conference. Status: <code>AVAILABLE</code>."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-vansh">Vansh (Asha Relief)</span>
+      <span>"10:01 AM — Submitting pickup request. Distance: 2 km away, van ready."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-suyash">Suyash (Seva Kitchen)</span>
+      <span>"10:01 AM — Also submitting pickup request. Distance: 14 km away."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-nitin">Nitin</span>
+      <span>"10:02 AM — Visiting <code>/donor-dashboard</code> &rarr; Incoming Requests. I see both Vansh and Suyash. Choosing Vansh because Asha Relief is only 2 km away. Clicking 'Approve'."</span>
+    </div>
+    <div class="dialogue-item">
+      <span class="speaker speaker-suyash">Suyash (Seva Kitchen)</span>
+      <span>"My screen just updated live via WebSocket: 'This donation was claimed by another organization.' Request declined gracefully without collisions."</span>
+    </div>
   </div>
-  <div class="dialogue-item">
-    <span class="speaker speaker-ngo">NGO B (Seva Trust)</span>
-    <span>10:01:42 AM — Clicks "Request Food" (Distance: 12 km away).</span>
-  </div>
-  <div class="dialogue-item">
-    <span class="speaker speaker-donor">Donor</span>
-    <span>10:02:10 AM — Reviews both incoming requests on <code>/donor-dashboard</code>. Selects <strong>NGO A</strong> due to closer proximity and faster turnaround time. Clicks "Approve".</span>
+  <div class="callout callout-system">
+    <strong>PostgreSQL Atomic Transaction:</strong>
+    Approving Vansh automatically executes:
+    <code>UPDATE requests SET status = 'APPROVED' WHERE id = vansh_req;</code>
+    <code>UPDATE donations SET status = 'CLAIMED' WHERE id = donation_id;</code>
+    <code>UPDATE requests SET status = 'REJECTED' WHERE donation_id = donation_id AND id != vansh_req AND status = 'PENDING';</code>
   </div>
 </div>
 
-<div class="callout callout-system">
-  <strong>Database Atomic Resolution:</strong>
-  When the donor approves NGO A:
-  <ol>
-    <li><code>requests.status</code> for NGO A updates to <code>APPROVED</code>.</li>
-    <li><code>donations.status</code> updates to <code>CLAIMED</code>.</li>
-    <li>All other requests for the same <code>donation_id</code> are automatically updated to <code>REJECTED</code> in a single transaction.</li>
-    <li>NGO B's dashboard receives Socket event <code>request:resolved</code> displaying a polite toast: <em>"This donation has been allocated to another organization."</em></li>
-  </ol>
-</div>
-
-<!-- SECTION 8: MASTER MATRIX FOR VIVA EVALUATION -->
+<!-- QUICK REFERENCE TABLE FOR EXAMINERS -->
 <div class="page-break"></div>
-<h2>8. Comprehensive Quick-Reference Matrix for Project Guide</h2>
-<p>Keep this table handy during the project viva to provide instant, precise technical answers on system state transitions and failure modes:</p>
-
+<h2>7. Master Reference Table for Viva Examiners</h2>
 <table class="data-table">
   <thead>
     <tr>
-      <th>Operational Case</th>
-      <th>Trigger Stage</th>
-      <th>Active Actors</th>
-      <th>Primary API Call</th>
+      <th>Case Study</th>
+      <th>Key Characters</th>
+      <th>Active Endpoint</th>
       <th>Database Status Transition</th>
       <th>Real-World Final Outcome</th>
     </tr>
@@ -785,74 +783,68 @@ Admin Resolves Dispute (Donor issued warning or Account Revocation via REVOKE_VE
   <tbody>
     <tr>
       <td><strong>1. Golden Flow</strong></td>
-      <td>Collection</td>
-      <td>Donor + NGO + Volunteer</td>
+      <td>Nitin, Vansh, Aditya</td>
       <td><code>POST /api/requests/:id/verify-otp</code></td>
       <td><code>AVAILABLE</code> &rarr; <code>CLAIMED</code> &rarr; <code>COLLECTED</code><br><code>otp_verified = TRUE</code></td>
-      <td>Food delivered safely to shelter; verified impact logged.</td>
+      <td>50 meals collected via OTP 7342 and delivered to shelter.</td>
     </tr>
     <tr>
-      <td><strong>2. Post-Delivery Grievance</strong></td>
-      <td>Post-Delivery</td>
-      <td>NGO + Platform Admin</td>
+      <td><strong>2. Quality Grievance</strong></td>
+      <td>Suyash, Vansh, Aman, Nitin</td>
       <td><code>POST /api/reports</code><br><code>PUT /api/reports/:id/status</code></td>
-      <td>Row created in <code>reports</code> (status: <code>PENDING</code> &rarr; <code>RESOLVED</code>); Donor <code>is_verified = FALSE</code></td>
-      <td>Spoiled food disposed; rogue donor suspended from platform.</td>
+      <td>New row in <code>reports</code> (Ticket <code>REP-00042</code>)<br>Nitin <code>is_verified = FALSE</code></td>
+      <td>Spoiled food safely discarded; donor suspended for cold-chain violation.</td>
     </tr>
     <tr>
       <td><strong>3. Doorstep Mismatch</strong></td>
-      <td>At Doorstep</td>
-      <td>Volunteer + Donor</td>
+      <td>Nitin, Aditya, Vansh</td>
       <td><code>PUT /api/requests/:id</code> (Withdraw)<br><code>POST /api/reports</code></td>
-      <td><code>otp_verified</code> remains <code>FALSE</code>;<br>Donation reverts or cancelled</td>
-      <td>Handoff rejected; false CSR claims prevented.</td>
+      <td><code>otp_verified</code> remains <code>FALSE</code><br>Request withdrawn</td>
+      <td>Handover rejected; fraudulent CSR impact inflation prevented.</td>
     </tr>
     <tr>
-      <td><strong>4. Volunteer No-Show</strong></td>
-      <td>In-Transit</td>
-      <td>Donor + Admin</td>
+      <td><strong>4. Driver No-Show</strong></td>
+      <td>Nitin, Rishi, Aman, Vansh</td>
       <td><code>POST /api/reports</code> (Category: <code>NO_SHOW</code>)<br><code>PUT /api/donations/:id/status</code></td>
-      <td>Request &rarr; <code>REJECTED</code>;<br>Donation &rarr; <code>AVAILABLE</code></td>
-      <td>Food rescued by emergency re-dispatch before expiration.</td>
+      <td>Rishi &rarr; <code>REJECTED</code><br>Donation &rarr; <code>AVAILABLE</code></td>
+      <td>Emergency reset by Aman; food claimed by Vansh before expiry.</td>
     </tr>
     <tr>
-      <td><strong>5. Impersonation Fraud</strong></td>
-      <td>At Doorstep</td>
-      <td>Unauthorized Person vs Donor</td>
-      <td><code>POST /api/requests/:id/verify-otp</code> (Fails)</td>
-      <td><code>otp_attempts</code> incremented;<br>Rate-limit lock engaged</td>
-      <td>Food retained securely; impostor expelled.</td>
+      <td><strong>5. Impersonation Theft</strong></td>
+      <td>Nitin, Rishi, Aman</td>
+      <td><code>POST /api/requests/:id/verify-otp</code></td>
+      <td><code>otp_attempts</code> incremented<br><code>400 Invalid OTP</code></td>
+      <td>Food retained securely; unauthorized stranger rejected.</td>
     </tr>
     <tr>
-      <td><strong>6. Claim Concurrency</strong></td>
-      <td>Request Phase</td>
-      <td>Multiple NGOs + Donor</td>
+      <td><strong>6. Concurrency Race</strong></td>
+      <td>Nitin, Vansh, Suyash</td>
       <td><code>PUT /api/requests/:id</code> (Approve)</td>
-      <td>Selected &rarr; <code>APPROVED</code><br>Competitors &rarr; <code>REJECTED</code></td>
-      <td>Zero race conditions; atomic allocation.</td>
+      <td>Vansh &rarr; <code>APPROVED</code><br>Suyash &rarr; <code>REJECTED</code></td>
+      <td>Atomic resolution; zero duplicate collections or conflicts.</td>
     </tr>
   </tbody>
 </table>
 
-<h2>9. Viva Anticipated Questions & Strong Model Answers</h2>
+<h2>8. Ready Answers for Viva Examiners</h2>
 
 <div class="event-card">
-  <p><strong>Q1: "Why did you invert the OTP flow instead of standard delivery app flows?"</strong></p>
-  <p><em>Model Answer:</em> "In commercial delivery (e.g. Swiggy/Zomato), the customer pays money and receives the OTP to confirm receipt from the driver. In surplus food redistribution, food is donated for free. If the donor held the OTP, an irresponsible driver could pick up food and disappear without delivering. By giving the OTP to the verified NGO and having the donor enter it, we guarantee that only an authorized NGO agent can authenticate the transaction at the donor's doorstep."</p>
+  <p><strong>Examiner: "Why did you build an inverted OTP rather than standard consumer OTP?"</strong></p>
+  <p><em>Answer (by Nitin / Vansh):</em> "In apps like Zomato or Swiggy, the customer receives the OTP because they paid money and confirm delivery. In food donation, food is donated for free. If the donor held the OTP, an unauthorized or rogue driver could take the food and vanish. By having the NGO generate the OTP and giving it to the driver, and requiring the donor to enter it on their own screen, we guarantee that food can only be released to the verified NGO's designated representative."</p>
 </div>
 
 <div class="event-card">
-  <p><strong>Q2: "What prevents a donor from donating rotten food to get tax/CSR certificates?"</strong></p>
-  <p><em>Model Answer:</em> "Two layers of defense: First, the on-site volunteer physical inspection before exchanging the OTP. Second, our Trust & Safety Grievance Module (<code>/grievances</code>). If spoiled food is detected post-delivery, the NGO files an incident report (<code>FOOD_QUALITY</code>). Admins audit the timestamp log, and if donor negligence is found, the admin invokes <code>REVOKE_VERIFICATION</code> which suspends their account and voids all CSR audit logs."</p>
+  <p><strong>Examiner: "What happens if a donor repeatedly donates spoiled or unsafe food?"</strong></p>
+  <p><em>Answer (by Aman):</em> "We built a Trust & Safety module at <code>/grievances</code>. When an NGO receives spoiled food, they file an incident report with category <code>FOOD_QUALITY</code>. As platform admin, I review the audit log. If transit was prompt but food was spoiled, I mark the report as <code>RESOLVED</code> and trigger <code>REVOKE_VERIFICATION</code>. This immediately revokes their verified badge and prevents them from listing any donations."</p>
 </div>
 
 <div class="event-card">
-  <p><strong>Q3: "How does the platform handle real-time sync across all these users?"</strong></p>
-  <p><em>Model Answer:</em> "We implemented a dual-room Socket.IO architecture. When a user connects, their socket authenticates via JWT and joins a private room <code>user:&lt;id&gt;</code> and a role room like <code>role:NGO</code>. Broadcasts like new donations go to <code>role:NGO</code>, while private sensitive events like OTP generation target strictly <code>user:&lt;ngo_id&gt;</code>. This prevents information leakage while enabling sub-second multi-device UI synchronization."</p>
+  <p><strong>Examiner: "How do you handle real-time sync when multiple people are acting simultaneously?"</strong></p>
+  <p><em>Answer (by Aditya / Suyash):</em> "We implemented Socket.IO with JWT handshake authentication. Users join personal rooms (<code>user:&lt;id&gt;</code>) and role-based rooms (<code>role:NGO</code>). When Nitin lists food, all NGOs receive <code>donation:available</code> in milliseconds. When Vansh assigns a volunteer, the OTP is strictly emitted to Vansh's personal room. All database state changes are backed by atomic transactions in PostgreSQL."</p>
 </div>
 
-<div style="margin-top: 30px; text-align: center; font-size: 8.5pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-  AnnSparsh Technical Documentation &bull; Generated for University Practical Project Viva &bull; 2026
+<div style="margin-top: 20px; text-align: center; font-size: 8pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+  AnnSparsh Team Project Documentation &bull; Nitin, Vansh, Aditya, Aman, Suyash, Rishi &bull; 2026
 </div>
 
 </body>
