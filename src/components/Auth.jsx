@@ -56,7 +56,6 @@ export default function Auth() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoPending, setDemoPending] = useState(null);
 
   useEffect(() => {
     const queryRole = searchParams.get('role');
@@ -118,34 +117,6 @@ export default function Auth() {
     else if (role === 'DONOR') navigate('/donor-dashboard');
     else if (role === 'ADMIN') navigate('/admin');
     else navigate('/');
-  };
-
-  const handleDemoLogin = async (roleKey) => {
-    const cfg = ROLES[roleKey];
-    if (!cfg || demoPending || loading) return;
-
-    setError('');
-    setIsLogin(true);
-    setSelectedRole(roleKey);
-    setFormData((prev) => ({
-      ...prev,
-      email: cfg.demoEmail,
-      password: cfg.demoPass,
-      role: roleKey,
-    }));
-    updateParams({ role: roleKey, mode: 'login' });
-
-    setDemoPending(roleKey);
-    try {
-      await signIn({ email: cfg.demoEmail, password: cfg.demoPass }, '/auth/login');
-    } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          `Could not sign in as the ${cfg.name} demo. Is the demo account seeded?`
-      );
-    } finally {
-      setDemoPending(null);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -350,33 +321,6 @@ export default function Auth() {
               {isLogin ? 'Create one' : 'Sign in'}
             </button>
           </p>
-
-          {/* Demo credentials */}
-          <div className="mt-10 pt-6 border-t border-brand-line dark:border-night-line">
-            <p className="numeric text-[9.5px] uppercase tracking-[0.16em] text-ink-faint dark:text-white/30">
-              One-click demo logins
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {['DONOR', 'NGO', 'ADMIN'].map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => handleDemoLogin(key)}
-                  disabled={demoPending !== null || loading}
-                  className="h-9 px-3.5 rounded-lg border border-brand-line dark:border-night-line text-[12.5px] font-bold text-ink-soft dark:text-white/50 hover:text-brand-green dark:hover:text-white hover:border-brand-green dark:hover:border-white/40 transition-colors disabled:opacity-55 disabled:pointer-events-none"
-                >
-                  {demoPending === key ? 'Signing in…' : `${ROLES[key].name} demo`}
-                </button>
-              ))}
-            </div>
-
-            <Link
-              to="/verification-pending"
-              className="inline-block mt-5 text-[12.5px] font-semibold text-ink-faint dark:text-white/30 hover:text-primary transition-colors"
-            >
-              Check NGO verification status
-            </Link>
-          </div>
         </div>
       </main>
     </div>
