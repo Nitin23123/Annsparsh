@@ -3,9 +3,20 @@ const jwt = require('jsonwebtoken');
 const pool = require('./config/db');
 
 module.exports = function buildSocketServer(httpServer) {
+    const clientUrls = (process.env.CLIENT_URL || '')
+        .split(',')
+        .map((u) => u.trim())
+        .filter(Boolean);
+    const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', ...clientUrls];
+
     const io = new Server(httpServer, {
         cors: {
-            origin: ['http://localhost:5173', 'http://localhost:5174'],
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+                    return callback(null, true);
+                }
+                callback(new Error('Blocked by CORS'));
+            },
             credentials: true,
         },
     });

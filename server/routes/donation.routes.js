@@ -9,6 +9,10 @@ router.post('/', authMiddleware, requireRole('DONOR'), async (req, res) => {
     if (!food_type || !quantity || !address || !best_before) {
         return res.status(400).json({ error: 'food_type, quantity, address, best_before are required' });
     }
+    const parsedBestBefore = parseInt(best_before, 10);
+    if (isNaN(parsedBestBefore) || parsedBestBefore <= 0) {
+        return res.status(400).json({ error: 'best_before must be a positive integer (hours)' });
+    }
     try {
         const result = await pool.query(
             `INSERT INTO donations (donor_id, food_type, quantity, address, best_before, notes)

@@ -4,7 +4,23 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
+const clientUrls = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((u) => u.trim())
+    .filter(Boolean);
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', ...clientUrls];
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+                return callback(null, true);
+            }
+            callback(new Error('Blocked by CORS'));
+        },
+        credentials: true,
+    })
+);
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth.routes'));
