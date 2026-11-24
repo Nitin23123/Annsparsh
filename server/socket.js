@@ -7,12 +7,25 @@ module.exports = function buildSocketServer(httpServer) {
         .split(',')
         .map((u) => u.trim())
         .filter(Boolean);
-    const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174', ...clientUrls];
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://annsparsh.vercel.app',
+        ...clientUrls,
+    ];
+
+    function isOriginAllowed(origin) {
+        if (!origin) return true;
+        if (allowedOrigins.includes(origin)) return true;
+        if (origin.endsWith('.vercel.app')) return true;
+        if (process.env.NODE_ENV !== 'production') return true;
+        return false;
+    }
 
     const io = new Server(httpServer, {
         cors: {
             origin: (origin, callback) => {
-                if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+                if (isOriginAllowed(origin)) {
                     return callback(null, true);
                 }
                 callback(new Error('Blocked by CORS'));
